@@ -1,5 +1,6 @@
 package com.example.blog.user;
 
+import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,27 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found".formatted(id)));
     }
 
-    public User save(User user) {
+    public User addUser(UserRegistrationRequest userRegistrationRequest) {
+        //check if email exist
+        String email = userRegistrationRequest.getEmail();
+        if (userRepository.existsByEmail(email)) {
+            throw new DuplicateResourceException("email already taken");
+        }
+
+        //check if username exist
+        String username = userRegistrationRequest.getUsername();
+        if (userRepository.existsByUsername(username)) {
+            throw new DuplicateResourceException("username already taken");
+        }
+
+        User user = User.builder()
+                .email(email)
+                .username(username)
+                .password(userRegistrationRequest.getPassword())
+                .phone(userRegistrationRequest.getPhone())
+                .firstName(userRegistrationRequest.getFirstName())
+                .lastName(userRegistrationRequest.getLastName()).build();
+
         return userRepository.save(user);
     }
 }
