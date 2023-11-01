@@ -12,9 +12,9 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User get(Long id) {
+    public User getById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id [%d] not found".formatted(id)));
+                .orElseThrow(() -> new ResourceNotFoundException("user with id [%d] not found".formatted(id)));
     }
 
     public User addUser(UserRegistrationRequest userRegistrationRequest) {
@@ -39,5 +39,17 @@ public class UserService {
                 .lastName(userRegistrationRequest.getLastName()).build();
 
         return userRepository.save(user);
+    }
+
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "user with email [%s] doesn't exists".formatted(email)));
+    }
+
+    public User getByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "user with username [%s] doesn't exists".formatted(username)));
     }
 }

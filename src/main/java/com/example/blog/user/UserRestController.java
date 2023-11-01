@@ -16,7 +16,7 @@ public class UserRestController {
 
     @GetMapping("{id}")
     public ResponseEntity<User> getUser(@PathVariable("id") Long id) {
-        User user = userService.get(id);
+        User user = userService.getById(id);
 
         return ResponseEntity.ok(user);
     }
@@ -26,5 +26,19 @@ public class UserRestController {
         User savedUser = userService.addUser(userRegistrationRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    }
+
+    @GetMapping("/identities/email/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable("email") String email) {
+        User user = userService.getByEmail(email);
+
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/identities/username/{username}")
+    public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username) {
+        User user = userService.getByUsername(username);
+
+        return ResponseEntity.ok(user);
     }
 }

@@ -1,7 +1,6 @@
 package com.example.blog.user;
 
 import com.example.blog.exception.ResourceNotFoundException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -45,7 +43,7 @@ class UserRestControllerTest {
                 .firstName("ab")
                 .lastName("c")
                 .phone("1234 56 78").build();
-        when(userService.get(id)).thenReturn(user);
+        when(userService.getById(id)).thenReturn(user);
 
         //when
         //then
@@ -65,7 +63,7 @@ class UserRestControllerTest {
     public void test_get_by_id_should_return_404_not_found() throws Exception {
         //given
         Long id = 100L;
-        when(userService.get(id)).thenThrow(ResourceNotFoundException.class);
+        when(userService.getById(id)).thenThrow(ResourceNotFoundException.class);
 
         //when
         //then
@@ -98,14 +96,14 @@ class UserRestControllerTest {
 
         assertThat(responseBody).contains("email: must be a well-formed email address");
         assertThat(responseBody).contains("password: Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character");
-        assertThat(responseBody).contains("username: Size must be between 2 and 64");
+        assertThat(responseBody).contains("username: Size must be between 3 and 64");
         assertThat(responseBody).contains("firstName: Size must be between 2 and 64");
         assertThat(responseBody).contains("phone: Size must be between 7 and 20");
         assertThat(responseBody).contains("lastName: Size must be between 2 and 64");
     }
 
     @Test
-    public void test_add_user_should_return_204_created() throws Exception {
+    public void test_add_user_should_return_201_created() throws Exception {
         //given
         UserRegistrationRequest request = UserRegistrationRequest.builder()
                 .email("asd@gmail.com")
@@ -139,6 +137,46 @@ class UserRestControllerTest {
                 .andExpect(jsonPath("$.firstName", is(user.getFirstName())))
                 .andExpect(jsonPath("$.lastName", is(user.getLastName())))
                 .andExpect(jsonPath("$.phone", is(user.getPhone())))
+                .andDo(print());
+    }
+
+    @Test
+    public void test_get_by_email_should_return_200_ok() throws Exception {
+        //given
+        String email = "zxc@gmail.com";
+        User user = User.builder()
+                .id(1L)
+                .email(email)
+                .password("zxc")
+                .firstName("ab")
+                .lastName("c")
+                .phone("1234 56 78").build();
+        when(userService.getByEmail(email)).thenReturn(user);
+
+        //when
+        //then
+        mockMvc.perform(get(END_POINT_PATH + "/identities/email/" + email))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.email", is(email)))
+                .andExpect(jsonPath("$.password", is(user.getPassword())))
+                .andExpect(jsonPath("$.firstName", is(user.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(user.getLastName())))
+                .andExpect(jsonPath("$.phone", is(user.getPhone())))
+                .andDo(print());
+    }
+
+    @Test
+    public void test_get_by_email_should_return_404_not_found() throws Exception {
+        //given
+        String email = "zxc@gmail.com";
+        when(userService.getByEmail(email)).thenThrow(ResourceNotFoundException.class);
+
+        //when
+        //then
+        mockMvc.perform(get(END_POINT_PATH + "/identities/email/" + email))
+                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 }

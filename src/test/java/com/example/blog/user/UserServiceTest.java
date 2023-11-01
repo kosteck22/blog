@@ -42,10 +42,11 @@ class UserServiceTest {
         when(userRepository.findById(id)).thenReturn(Optional.of(expected));
 
         //when
-        User actual = underTest.get(id);
+        User actual = underTest.getById(id);
 
         //then
         assertThat(actual).isEqualTo(expected);
+        assertThat(actual.getId()).isEqualTo(id);
     }
 
     @Test
@@ -56,9 +57,9 @@ class UserServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.get(id))
+        assertThatThrownBy(() -> underTest.getById(id))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User with id [%d] not found".formatted(id));
+                .hasMessage("user with id [%d] not found".formatted(id));
     }
 
     @Test
@@ -144,5 +145,75 @@ class UserServiceTest {
 
         //then
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    public void test_get_user_by_email_throws_resource_not_found_exception() {
+        //given
+        String email = "zxc@gmail.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.getByEmail(email))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("user with email [%s] doesn't exists".formatted(email));
+    }
+
+    @Test
+    public void test_get_user_by_email_success() {
+        //given
+        String email = "zxc@gmail.com";
+        User expected = User.builder()
+                .id(1L)
+                .email(email)
+                .firstName("ab")
+                .lastName("c")
+                .username("ab c")
+                .phone("1234 56 78")
+                .password("zxc").build();
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(expected));
+
+        //when
+        User actual = underTest.getByEmail(email);
+
+        //then
+        assertThat(actual).isEqualTo(expected);
+        assertThat(actual.getEmail()).isEqualTo(email);
+    }
+
+    @Test
+    public void test_get_user_by_username_throws_resource_not_found_exception() {
+        //given
+        String username = "zxc vb";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.getByUsername(username))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("user with username [%s] doesn't exists".formatted(username));
+    }
+
+    @Test
+    public void test_get_user_by_username_success() {
+        //given
+        String username = "zxc vb";
+        User expected = User.builder()
+                .id(1L)
+                .email("zxc@gmail.com")
+                .firstName("ab")
+                .lastName("c")
+                .username(username)
+                .phone("1234 56 78")
+                .password("zxc").build();
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(expected));
+
+        //when
+        User actual = underTest.getByUsername(username);
+
+        //then
+        assertThat(actual).isEqualTo(expected);
+        assertThat(actual.getUsername()).isEqualTo(username);
     }
 }
