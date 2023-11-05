@@ -151,7 +151,7 @@ class PostControllerTest {
 
         //when
         //then
-        mockMvc.perform((get(END_POINT_PATH).contentType(MediaTypes.HAL_JSON)))
+        MvcResult mvcResult = mockMvc.perform((get(END_POINT_PATH).contentType(MediaTypes.HAL_JSON)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/posts?page=0&size=2")))
@@ -159,6 +159,11 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.page.totalElements", is(0)))
                 .andExpect(jsonPath("$.page.totalPages", is(0)))
                 .andExpect(jsonPath("$.page.number", is(0)))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        String responseBody = mvcResult.getResponse().getContentAsString();
+
+        assertThat(responseBody).doesNotContain("_embedded");
     }
 }

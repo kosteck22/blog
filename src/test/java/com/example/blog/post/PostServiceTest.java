@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.exception.DuplicateResourceException;
 import jakarta.validation.constraints.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -36,6 +38,7 @@ class PostServiceTest {
         PostRequest request = PostRequest.builder()
                 .title(title)
                 .body(body).build();
+        when(postRepository.existsByTitle(title)).thenReturn(false);
 
         //when
         underTest.save(request);
@@ -53,6 +56,25 @@ class PostServiceTest {
     }
 
     @Test
+    public void test_save_post_throws_duplicate_resource_exception() {
+        //given
+        String title = "This is title";
+        String body = "This is body";
+        PostRequest request = PostRequest.builder()
+                .title(title)
+                .body(body).build();
+        when(postRepository.existsByTitle(title)).thenReturn(true);
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.save(request))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessage("Post with title [%s] already exists".formatted(title));
+
+        verify(postRepository, never()).save(any());
+    }
+
+    @Test
     public void test_fetch_post_data_as_page() {
         //given
         Pageable pageable = PageRequest.of(0, 5);
@@ -63,5 +85,6 @@ class PostServiceTest {
 
         //then
         assertThat(posts).isEmpty();
+        verify(postRepository).findAll(pageable);
     }
 }

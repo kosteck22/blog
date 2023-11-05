@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.exception.DuplicateResourceException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,8 +21,13 @@ public class PostService {
     }
 
     public Post save(PostRequest request) {
+        String title = request.getTitle();
+        if (postRepository.existsByTitle(title)) {
+            throw new DuplicateResourceException("Post with title [%s] already exists".formatted(title));
+        }
+
         Post post = Post.builder()
-                .title(request.getTitle())
+                .title(title)
                 .body(request.getBody()).build();
 
         return postRepository.save(post);
