@@ -16,15 +16,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class PostRepositoryJPATest {
     private final PostRepository underTest;
 
-    public PostRepositoryJPATest(@Qualifier("jpa") PostRepository postRepository) {
+    public PostRepositoryJPATest(@Qualifier("post-jpa") PostRepository postRepository) {
         this.underTest = postRepository;
     }
 
     @Test
     public void test_save_post_success() {
         //given
-        String title = "This is title";
-        String body = "This is body";
+        String title = "This is title 20";
+        String body = "This is body 20";
         Post post = Post.builder()
                 .title(title)
                 .body(body).build();

@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @Table(name = "posts")
 @Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 @Builder
 public class Post {
     @Id

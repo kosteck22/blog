@@ -7,10 +7,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -46,5 +50,18 @@ class PostServiceTest {
         assertThat(capturedPost.getId()).isNull();
         assertThat(capturedPost.getTitle()).isEqualTo(title);
         assertThat(capturedPost.getBody()).isEqualTo(body);
+    }
+
+    @Test
+    public void test_fetch_post_data_as_page() {
+        //given
+        Pageable pageable = PageRequest.of(0, 5);
+        when(postRepository.findAll(pageable)).thenReturn(Page.empty());
+
+        //when
+        Page<Post> posts = underTest.fetchPostDataAsPage(pageable);
+
+        //then
+        assertThat(posts).isEmpty();
     }
 }
