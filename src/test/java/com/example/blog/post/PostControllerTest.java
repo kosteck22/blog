@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.doThrow;
 
 
 @WebMvcTest(PostController.class)
@@ -58,7 +61,7 @@ class PostControllerTest {
 
         //when
         //then
-        mockMvc.perform((post(END_POINT_PATH).contentType(MediaType.APPLICATION_JSON).content(requestBody)))
+        mockMvc.perform(post(END_POINT_PATH).contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(1)))
@@ -79,7 +82,7 @@ class PostControllerTest {
 
         //when
         //then
-        MvcResult result = mockMvc.perform((post(END_POINT_PATH).contentType(MediaType.APPLICATION_JSON).content(requestBody)))
+        MvcResult result = mockMvc.perform(post(END_POINT_PATH).contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -118,9 +121,9 @@ class PostControllerTest {
 
         //when
         //then
-        mockMvc.perform((get(END_POINT_PATH).contentType(MediaTypes.HAL_JSON)))
+        mockMvc.perform(get(END_POINT_PATH).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(content().contentType(MediaTypes.HAL_JSON))
                 .andExpect(jsonPath("$._embedded.postModelList[0].id", is(1)))
                 .andExpect(jsonPath("$._embedded.postModelList[0].title", is("title 1")))
                 .andExpect(jsonPath("$._embedded.postModelList[0].body", is("body of the post 1")))
@@ -151,9 +154,9 @@ class PostControllerTest {
 
         //when
         //then
-        MvcResult mvcResult = mockMvc.perform((get(END_POINT_PATH).contentType(MediaTypes.HAL_JSON)))
+        MvcResult mvcResult = mockMvc.perform(get(END_POINT_PATH).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(content().contentType(MediaTypes.HAL_JSON))
                 .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/posts?page=0&size=2")))
                 .andExpect(jsonPath("$.page.size", is(2)))
                 .andExpect(jsonPath("$.page.totalElements", is(0)))
@@ -165,5 +168,67 @@ class PostControllerTest {
         String responseBody = mvcResult.getResponse().getContentAsString();
 
         assertThat(responseBody).doesNotContain("_embedded");
+    }
+
+    @Test
+    public void test_get_post_by_id_should_return_200() throws Exception {
+        //given
+        Long id = 1L;
+        Post post = Post.builder()
+                .id(id)
+                .title("title 1")
+                .body("body of the post 1").build();
+
+        when(postService.getById(id)).thenReturn(post);
+
+        //when
+        //then
+        mockMvc.perform(get(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaTypes.HAL_JSON))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.title", is(post.getTitle())))
+                .andExpect(jsonPath("$.body", is(post.getBody())))
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/posts/1")))
+                .andDo(print());
+    }
+
+    @Test
+    public void test_get_post_by_id_should_return_404_not_found() throws Exception {
+        //given
+        Long id = 1L;
+
+        when(postService.getById(id)).thenThrow(new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
+
+        //when
+        //then
+        mockMvc.perform(get(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors[0]", is("Post with id [%d] does not exist".formatted(id))))
+                .andDo(print());
+    }
+
+    @Test
+    public void test_delete_post_should_return_204_success() throws Exception {
+        //given
+        long id = 1L;
+
+        //when
+        mockMvc.perform(delete(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+    }
+
+    @Test
+    public void test_delete_post_should_return_404_not_found() throws Exception {
+        //given
+        Long id = 1L;
+        doThrow(ResourceNotFoundException.class).when(postService).delete(id);
+
+        //when
+        mockMvc.perform(delete(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andDo(print());
     }
 }

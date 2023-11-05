@@ -26,13 +26,17 @@ public class PostController {
     }
 
     @GetMapping
-    public PagedModel<PostModel> fetchPostWithPagination(@PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<PagedModel<PostModel>> fetchPostWithPagination(@PageableDefault(size = 5) Pageable pageable) {
         Page<Post> postPage = postService.fetchPostDataAsPage(pageable);
 
-        return pagedResourcesAssembler.toModel(postPage, postModelAssembler);
+        if (postPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
+        }
+
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(postPage, postModelAssembler));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<PostModel> getById(@PathVariable("id") Long id) {
         Post post = postService.getById(id);
         return ResponseEntity.ok(postModelAssembler.toModel(post));
@@ -43,5 +47,12 @@ public class PostController {
         Post post = postService.save(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(post);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+        postService.delete(id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }

@@ -7,12 +7,13 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(value = false)
 class PostRepositoryJPATest {
     private final PostRepository underTest;
 
@@ -39,5 +40,74 @@ class PostRepositoryJPATest {
         assertThat(result.getId()).isGreaterThan(0);
         assertThat(result.getTitle()).isEqualTo(title);
         assertThat(result.getBody()).isEqualTo(body);
+    }
+
+    @Test
+    public void test_exists_by_id_success() {
+        //given
+        String title = "This is title 30";
+        String body = "This is body 20";
+
+        Post post = Post.builder()
+                .title(title)
+                .body(body).build();
+
+        underTest.save(post);
+
+        Long id = underTest.findAll()
+                .stream()
+                .filter(p -> p.getTitle().equals(title))
+                .map(Post::getId)
+                .findFirst()
+                .orElseThrow();
+
+        //when
+        boolean actual = underTest.existsById(id);
+
+        //then
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    public void test_exists_by_id_fails_when_id_not_present() {
+        //given
+        Long id = -1L;
+
+        //when
+        boolean result = underTest.existsById(id);
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void test_exists_by_title_success() {
+        //given
+        String title = "This is title 30";
+        String body = "This is body 20";
+
+        Post post = Post.builder()
+                .title(title)
+                .body(body).build();
+
+        underTest.save(post);
+
+        //when
+        boolean actual = underTest.existsByTitle(title);
+
+        //then
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    public void test_exists_by_title_fails_when_id_not_present() {
+        //given
+        String title = "title example";
+
+        //when
+        boolean result = underTest.existsByTitle(title);
+
+        //then
+        assertThat(result).isFalse();
     }
 }

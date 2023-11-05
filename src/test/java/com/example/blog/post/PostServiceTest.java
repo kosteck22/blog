@@ -120,4 +120,32 @@ class PostServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(id));
     }
+
+    @Test
+    public void test_delete_post_by_id_success() {
+        //given
+        Long id = 1L;
+        when(postRepository.existsById(id)).thenReturn(true);
+
+        //when
+        underTest.delete(id);
+
+        //then
+        verify(postRepository).deleteById(id);
+    }
+
+    @Test
+    public void test_delete_post_by_id_throws_resource_not_found_exception() {
+        //given
+        Long id = 1L;
+        when(postRepository.existsById(id)).thenReturn(false);
+
+        //when
+        assertThatThrownBy(() -> underTest.delete(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Post with id [%d] does not exist".formatted(id));
+
+        //then
+        verify(postRepository, never()).deleteById(id);
+    }
 }

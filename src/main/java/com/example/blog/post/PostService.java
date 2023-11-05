@@ -42,4 +42,12 @@ public class PostService {
         return postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
     }
+
+    public void delete(Long id) {
+        if (!postRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id));
+        }
+
+        postRepository.deleteById(id);
+    }
 }
