@@ -1,6 +1,7 @@
 package com.example.blog.post;
 
 import com.example.blog.exception.DuplicateResourceException;
+import com.example.blog.exception.ResourceNotFoundException;
 import jakarta.validation.constraints.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -70,7 +73,6 @@ class PostServiceTest {
         assertThatThrownBy(() -> underTest.save(request))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("Post with title [%s] already exists".formatted(title));
-
         verify(postRepository, never()).save(any());
     }
 
@@ -86,5 +88,36 @@ class PostServiceTest {
         //then
         assertThat(posts).isEmpty();
         verify(postRepository).findAll(pageable);
+    }
+
+    @Test
+    public void test_get_post_by_id_success() {
+        //given
+        Long id = 1L;
+        Post expected = Post.builder()
+                .id(id)
+                .title("title of post")
+                .body("body of post")
+                .build();
+        when(postRepository.findById(id)).thenReturn(Optional.of(expected));
+
+        //when
+        Post actual = underTest.getById(id);
+
+        //then
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void test_get_post_by_id_throws_exception_when_return_empty_optional() {
+        //given
+        Long id = 1L;
+        when(postRepository.findById(id)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.getById(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Post with id [%d] does not exist".formatted(id));
     }
 }

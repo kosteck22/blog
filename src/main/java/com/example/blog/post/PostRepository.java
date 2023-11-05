@@ -11,4 +11,5 @@ public interface PostRepository {
     Post save(Post post);
     Page<Post> findAll(Pageable pageable);
     boolean existsByTitle(String title);
+    Optional<Post> findById(Long id);
 }

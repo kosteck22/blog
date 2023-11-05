@@ -1,6 +1,7 @@
 package com.example.blog.post;
 
 import com.example.blog.exception.DuplicateResourceException;
+import com.example.blog.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,5 +36,10 @@ public class PostService {
 
     public Page<Post> fetchPostDataAsPage(Pageable pageable) {
         return postRepository.findAll(pageable);
+    }
+
+    public Post getById(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
     }
 }
