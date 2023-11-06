@@ -15,5 +15,6 @@ public interface PostRepository {
     boolean existsByTitle(String title);
     boolean existsById(Long id);
     Optional<Post> findById(Long id);
+    Optional<Post> findByTitle(String title);
     void deleteById(Long id);
 }

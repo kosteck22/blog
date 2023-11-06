@@ -1,6 +1,7 @@
 package com.example.blog.post;
 
 import com.example.blog.exception.ResourceNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -230,5 +231,84 @@ class PostControllerTest {
         mockMvc.perform(delete(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andDo(print());
+    }
+
+    @Test
+    public void test_update_post_should_return_200() throws Exception {
+        //given
+        Long id = 1L;
+        String title = "This is updated title";
+        String body = "This is updated body";
+        PostRequest request = PostRequest.builder()
+                .title(title)
+                .body(body).build();
+        Post post = Post.builder()
+                .id(1L)
+                .title(title)
+                .body(body)
+                .build();
+        String requestBody = objectMapper.writeValueAsString(request);
+        when(postService.update(id, request)).thenReturn(post);
+
+        //when
+        //then
+        mockMvc.perform(put(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaTypes.HAL_JSON))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.title", is(title)))
+                .andExpect(jsonPath("$.body", is(body)))
+                .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/posts/1")))
+                .andDo(print());
+    }
+
+    @Test
+    public void test_update_post_should_return_404_not_found() throws Exception {
+        //given
+        long id = 1L;
+        String title = "This is updated title";
+        String body = "This is updated body";
+        PostRequest request = PostRequest.builder()
+                .title(title)
+                .body(body).build();
+        Post post = Post.builder()
+                .id(1L)
+                .title(title)
+                .body(body)
+                .build();
+        String requestBody = objectMapper.writeValueAsString(request);
+        when(postService.update(id, request)).thenThrow(new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
+
+        //when
+        //then
+        mockMvc.perform(put(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors[0]", is("Post with id [1] does not exist")))
+                .andDo(print());
+    }
+
+    @Test
+    public void test_update_post_should_return_400_bad_request() throws Exception {
+        //given
+        long id = 1L;
+        String title = "T";
+        String body = "T";
+        PostRequest request = PostRequest.builder()
+                .title(title)
+                .body(body).build();
+        String requestBody = objectMapper.writeValueAsString(request);
+
+        //when
+        //then
+        MvcResult mvcResult = mockMvc.perform(put(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        assertThat(response).contains("title size must be between 5 and 64");
+        assertThat(response).contains("body size must be between 10 and 1024");
     }
 }
