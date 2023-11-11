@@ -221,4 +221,34 @@ class CommentControllerTest {
 
         verify(commentService).delete(postId, commentId);
     }
+
+    @Test
+    public void test_get_comment_should_return_200_ok() throws Exception {
+        //given
+        Long postId = 1L;
+        Long commentId = 1L;
+        String commentBody = "This is comment body";
+
+        Post post = Post.builder()
+                .id(postId)
+                .title("title of the post")
+                .body("body of the post").build();
+
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .body(commentBody)
+                .post(post).build();
+
+        when(commentService.getById(postId, commentId)).thenReturn(comment);
+
+        //when
+        //then
+        mockMvc.perform(get(END_POINT_PATH.formatted(postId) + "/" + commentId).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaTypes.HAL_JSON))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.body", is(commentBody)))
+                .andExpect(jsonPath("$._links.post.href", is("http://localhost/api/v1/posts/" + postId)))
+                .andDo(print());
+    }
 }

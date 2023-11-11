@@ -38,6 +38,14 @@ public class CommentController {
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(commentPage, commentModelAssembler));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<CommentModel> get(@PathVariable("postId") Long postId,
+                                            @PathVariable("id") Long commentId) {
+        Comment comment = commentService.getById(postId, commentId);
+
+        return ResponseEntity.ok(commentModelAssembler.toModel(comment));
+    }
+
     @PostMapping
     public ResponseEntity<CommentModel> save(@PathVariable("postId") Long postId,
                                        @Valid @RequestBody CommentRequest request) {

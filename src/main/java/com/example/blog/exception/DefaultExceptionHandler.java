@@ -45,6 +45,19 @@ public class DefaultExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(RequestValidationException.class)
+    public ResponseEntity<ApiError> handleException(RequestValidationException e, HttpServletRequest request) {
+        LOGGER.error(e.getMessage(), e);
+
+        ApiError apiError = new ApiError(
+                request.getRequestURI(),
+                List.of(e.getMessage()),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException e, HttpServletRequest request) {
         LOGGER.error(e.getMessage(), e);

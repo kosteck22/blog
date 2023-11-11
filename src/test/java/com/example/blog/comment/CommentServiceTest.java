@@ -214,4 +214,105 @@ class CommentServiceTest {
         assertThat(capturedComment.getBody()).isEqualTo(bodyOfComment);
         assertThat(capturedComment.getPost()).isEqualTo(post);
     }
+
+    @Test
+    public void test_get_comment_success() {
+        //given
+        Long postId = 1L;
+        Long commentId = 2L;
+        Post post = Post.builder()
+                .id(postId)
+                .title("title")
+                .body("body of post").build();
+        String bodyOfComment = "body of comment";
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .body(bodyOfComment)
+                .post(post).build();
+
+
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+        //when
+        Comment result = underTest.getById(postId, commentId);
+
+        //then
+        assertThat(result.getId()).isEqualTo(commentId);
+        assertThat(result.getBody()).isEqualTo(bodyOfComment);
+        assertThat(result.getPost()).isEqualTo(post);
+    }
+
+    @Test
+    public void test_get_comment_should_throw_resource_not_found_for_post_id() {
+        //given
+        Long postId = 1L;
+        Long commentId = 2L;
+        Post post = Post.builder()
+                .id(postId)
+                .title("title")
+                .body("body of post").build();
+        String bodyOfComment = "body of comment";
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .body(bodyOfComment)
+                .post(post).build();
+
+        when(postRepository.findById(postId)).thenReturn(Optional.empty());
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.getById(postId, commentId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                        .hasMessage("Post with id [%d] does not exist".formatted(postId));
+    }
+
+    @Test
+    public void test_get_comment_should_throw_resource_not_found_for_comment_id() {
+        //given
+        Long postId = 1L;
+        Long commentId = 2L;
+        Post post = Post.builder()
+                .id(postId)
+                .title("title")
+                .body("body of post").build();
+        String bodyOfComment = "body of comment";
+
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.getById(postId, commentId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Comment with id [%d] does not exist".formatted(commentId));
+    }
+
+    @Test
+    public void test_get_comment_should_throw_request_validation_exception_comment_does_not_belong_to_post() {
+        //given
+        Long postId = 1L;
+        Long commentId = 2L;
+        Post post = Post.builder()
+                .id(postId)
+                .title("title")
+                .body("body of post").build();
+        Post postForComment = Post.builder()
+                .id(3L)
+                .title("title")
+                .body("body").build();
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .body("body of comment")
+                .post(postForComment).build();
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.getById(postId, commentId))
+                .isInstanceOf(RequestValidationException.class)
+                .hasMessage("Comment does not belong to post with id [%d]".formatted(postId));
+    }
 }

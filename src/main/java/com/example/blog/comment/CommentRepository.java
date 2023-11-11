@@ -1,6 +1,5 @@
 package com.example.blog.comment;
 
-import com.example.blog.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.NoRepositoryBean;

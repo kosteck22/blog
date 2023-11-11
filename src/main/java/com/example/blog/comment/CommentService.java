@@ -62,4 +62,15 @@ public class CommentService {
     private boolean commentDoesNotBelongToPost(Comment comment, Post post) {
         return !post.getId().equals(comment.getPost().getId());
     }
+
+    public Comment getById(Long postId, Long commentId) {
+        Post post = getPostById(postId);
+        Comment comment = getCommentById(commentId);
+
+        if (commentDoesNotBelongToPost(comment, post)) {
+            throw new RequestValidationException("Comment does not belong to post with id [%d]".formatted(postId));
+        }
+
+        return comment;
+    }
 }
