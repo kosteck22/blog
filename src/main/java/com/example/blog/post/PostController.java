@@ -26,7 +26,7 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<PostModel>> fetchPostWithPagination(@PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<PagedModel<PostModel>> getPostsAsPage(@PageableDefault(size = 5) Pageable pageable) {
         Page<Post> postPage = postService.fetchPostDataAsPage(pageable);
 
         if (postPage.isEmpty()) {
@@ -38,7 +38,7 @@ public class PostController {
 
     @GetMapping("{id}")
     public ResponseEntity<PostModel> getById(@PathVariable("id") Long id) {
-        Post post = postService.getById(id);
+        Post post = postService.getPostById(id);
         return ResponseEntity.ok(postModelAssembler.toModel(post));
     }
 

@@ -1,7 +1,6 @@
 package com.example.blog.post;
 
 import com.example.blog.exception.ResourceNotFoundException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -118,7 +116,7 @@ class PostControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Post> postPage = new PageImpl<>(posts, pageable, posts.size());
 
-        when(postService.fetchPostDataAsPage(any())).thenReturn(postPage);
+        when(postService.fetchPostDataAsPage(pageable)).thenReturn(postPage);
 
         //when
         //then
@@ -156,7 +154,7 @@ class PostControllerTest {
         //when
         //then
         MvcResult mvcResult = mockMvc.perform(get(END_POINT_PATH).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andExpect(content().contentType(MediaTypes.HAL_JSON))
                 .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/posts?page=0&size=2")))
                 .andExpect(jsonPath("$.page.size", is(2)))
@@ -180,7 +178,7 @@ class PostControllerTest {
                 .title("title 1")
                 .body("body of the post 1").build();
 
-        when(postService.getById(id)).thenReturn(post);
+        when(postService.getPostById(id)).thenReturn(post);
 
         //when
         //then
@@ -199,7 +197,7 @@ class PostControllerTest {
         //given
         Long id = 1L;
 
-        when(postService.getById(id)).thenThrow(new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
+        when(postService.getPostById(id)).thenThrow(new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
 
         //when
         //then

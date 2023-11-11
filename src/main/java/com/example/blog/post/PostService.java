@@ -3,15 +3,10 @@ package com.example.blog.post;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,7 +35,7 @@ public class PostService {
         return postRepository.findAll(pageable);
     }
 
-    public Post getById(Long id) {
+    public Post getPostById(Long id) {
         return postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
     }
@@ -54,8 +49,7 @@ public class PostService {
     }
 
     public Post update(Long id, PostRequest request) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
+        Post post = getPostById(id);
 
         if (titleAlreadyTaken(post, request.getTitle())) {
             throw new RequestValidationException("Title [%s] already taken".formatted(request.getTitle()));
