@@ -19,7 +19,7 @@ public interface DTOMapper<I, O> extends Function<I, O> {
     default List<O> convert(final List<I> input) {
         List<O> output = new ArrayList<O>();
         if (input != null) {
-            output = input.stream().map(this::apply).collect(toList());
+            output = input.stream().map(this).collect(toList());
         }
         return output;
     }

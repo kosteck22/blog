@@ -1,8 +1,8 @@
 package com.example.blog.post;
 
 import com.example.blog.exception.DuplicateResourceException;
+import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
-import jakarta.validation.constraints.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +17,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -77,7 +76,7 @@ class PostServiceTest {
     }
 
     @Test
-    public void test_fetch_post_data_as_page() {
+    public void test_fetch_post_data_as_page_empty() {
         //given
         Pageable pageable = PageRequest.of(0, 5);
         when(postRepository.findAll(pageable)).thenReturn(Page.empty());
@@ -102,7 +101,7 @@ class PostServiceTest {
         when(postRepository.findById(id)).thenReturn(Optional.of(expected));
 
         //when
-        Post actual = underTest.getById(id);
+        Post actual = underTest.getPostById(id);
 
         //then
         assertThat(actual).isEqualTo(expected);
@@ -116,7 +115,7 @@ class PostServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.getById(id))
+        assertThatThrownBy(() -> underTest.getPostById(id))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(id));
     }
@@ -147,5 +146,91 @@ class PostServiceTest {
 
         //then
         verify(postRepository, never()).deleteById(id);
+    }
+
+    @Test
+    public void test_update_post_success() {
+        //given
+        Long id = 1L;
+        String requestTitle = "This is new title";
+        String requestBody = "This is new body";
+
+        Post post = Post.builder()
+                .id(id)
+                .title("This is title")
+                .body("This is body").build();
+
+        PostRequest request = PostRequest.builder()
+                .title(requestTitle)
+                .body(requestBody).build();
+
+        when(postRepository.findById(id)).thenReturn(Optional.of(post));
+        when(postRepository.findByTitle(requestTitle)).thenReturn(Optional.empty());
+
+        //when
+        underTest.update(id, request);
+
+        //then
+        ArgumentCaptor<Post> postArgumentCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(postRepository).save(postArgumentCaptor.capture());
+
+        Post capturedPost = postArgumentCaptor.getValue();
+        assertThat(capturedPost.getTitle()).isEqualTo(requestTitle);
+        assertThat(capturedPost.getBody()).isEqualTo(requestBody);
+    }
+
+    @Test
+    public void test_update_post_throws_resource_not_found() {
+        //given
+        Long id = 1L;
+        String requestTitle = "This is new title";
+        String requestBody = "This is new body";
+
+        PostRequest request = PostRequest.builder()
+                .title(requestTitle)
+                .body(requestBody).build();
+
+        when(postRepository.findById(id)).thenReturn(Optional.empty());
+
+        //when
+        assertThatThrownBy(() -> underTest.update(id, request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Post with id [%d] does not exist".formatted(id));
+
+        //then
+        verify(postRepository, never()).save(any());
+    }
+
+    @Test
+    public void test_update_post_throws_request_validation_exception() {
+        //given
+        Long id = 1L;
+        String requestTitle = "This is new title";
+        String requestBody = "This is new body";
+
+        Post post = Post.builder()
+                .id(id)
+                .title("This is title")
+                .body("This is body").build();
+
+        Post postFromDB = Post.builder()
+                .id(2L)
+                .title(requestTitle)
+                .body("This is body").build();
+
+        PostRequest request = PostRequest.builder()
+                .title(requestTitle)
+                .body(requestBody).build();
+
+        when(postRepository.findById(id)).thenReturn(Optional.of(post));
+        when(postRepository.findByTitle(requestTitle)).thenReturn(Optional.of(postFromDB));
+
+        //when
+        assertThatThrownBy(() -> underTest.update(id, request))
+                .isInstanceOf(RequestValidationException.class)
+                .hasMessage("Title [%s] already taken".formatted(requestTitle));
+
+        //then
+        verify(postRepository, never()).save(any());
     }
 }

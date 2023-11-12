@@ -1,7 +1,10 @@
 package com.example.blog.post;
 
+import com.example.blog.comment.Comment;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -18,4 +21,7 @@ public class Post {
 
     @Column(nullable = false)
     private String body;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<Comment> comments;
 }
