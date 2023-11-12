@@ -60,4 +60,13 @@ public class CommentController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity<CommentModel> update(@PathVariable("postId") Long postId,
+                                               @PathVariable("id") Long commentId,
+                                               @Valid @RequestBody CommentRequest request) {
+        Comment comment = commentService.update(postId, commentId, request);
+
+        return ResponseEntity.ok(commentModelAssembler.toModel(comment));
+    }
 }

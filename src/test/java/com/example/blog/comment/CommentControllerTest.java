@@ -251,4 +251,85 @@ class CommentControllerTest {
                 .andExpect(jsonPath("$._links.post.href", is("http://localhost/api/v1/posts/" + postId)))
                 .andDo(print());
     }
+
+    @Test
+    public void test_update_comment_should_return_400_bad_request() throws Exception {
+        //given
+        Long postId = 1L;
+        long commentId = 1L;
+
+        CommentRequest commentRequest = CommentRequest.builder()
+                .body("ABC").build();
+
+        String requestBody = objectMapper.writeValueAsString(commentRequest);
+
+        //when
+        MvcResult mvcResult = mockMvc.perform(put(END_POINT_PATH.formatted(postId) + "/" + commentId).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andReturn();
+
+        //then
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).contains("body size must be between 10 and 1024");
+    }
+
+    @Test
+    public void test_update_comment_should_return_404_resource_not_found() throws Exception {
+        //given
+        Long postId = 1L;
+        long commentId = 1L;
+
+        CommentRequest commentRequest = CommentRequest.builder()
+                .body("This is body of the new comment").build();
+
+        String requestBody = objectMapper.writeValueAsString(commentRequest);
+
+        when(commentService.update(postId, commentId, commentRequest)).thenThrow(ResourceNotFoundException.class);
+
+        //when
+        //then
+        mockMvc.perform(put(END_POINT_PATH.formatted(postId) + "/" + commentId).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    public void test_update_comment_should_return_200_success() throws Exception {
+        //given
+        Long postId = 1L;
+        long commentId = 1L;
+        String commentBody = "This is body of the new comment";
+        LocalDateTime createdDate = LocalDateTime.of(2023, 10, 12, 12, 12, 12);
+        Timestamp timestamp = Timestamp.valueOf(createdDate);
+        CommentRequest commentRequest = CommentRequest.builder()
+                .body(commentBody).build();
+
+        Post post = Post.builder()
+                .id(postId)
+                .title("Post title")
+                .body("post body").build();
+
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .body(commentBody)
+                .post(post).build();
+        comment.setCreatedDate(timestamp.getTime());
+
+        String requestBody = objectMapper.writeValueAsString(commentRequest);
+
+        when(commentService.update(postId, commentId, commentRequest)).thenReturn(comment);
+
+        //when
+        //then
+        mockMvc.perform(put(END_POINT_PATH.formatted(postId) + "/" + commentId).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaTypes.HAL_JSON))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.body", is(commentBody)))
+                .andExpect(jsonPath("$.createdDate", is("2023-10-12T12:12:12")))
+                .andExpect(jsonPath("$._links.post.href", is("http://localhost/api/v1/posts/1")))
+                .andDo(print());
+    }
 }

@@ -315,4 +315,119 @@ class CommentServiceTest {
                 .isInstanceOf(RequestValidationException.class)
                 .hasMessage("Comment does not belong to post with id [%d]".formatted(postId));
     }
+
+    @Test
+    public void update_comment_should_success() {
+        //given
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        CommentRequest request = CommentRequest.builder()
+                .body("This is body of the updated comment").build();
+
+        Post post = Post.builder()
+                .id(postId)
+                .title("title of post")
+                .body("body of post").build();
+
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .body("Old body of comment")
+                .post(post)
+                .build();
+
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+        //when
+        underTest.update(postId, commentId, request);
+
+        //then
+        ArgumentCaptor<Comment> commentArgumentCaptor = ArgumentCaptor.forClass(Comment.class);
+
+        verify(commentRepository).save(commentArgumentCaptor.capture());
+
+        Comment result = commentArgumentCaptor.getValue();
+
+        assertThat(result.getPost()).isEqualTo(post);
+        assertThat(result.getId()).isEqualTo(commentId);
+        assertThat(result.getBody()).isEqualTo(request.getBody());
+    }
+
+    @Test
+    public void test_update_comment_should_throw_resource_not_found_for_post() {
+        //given
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        CommentRequest request = CommentRequest.builder()
+                .body("This is body of the updated comment").build();
+
+        when(postRepository.findById(postId)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.update(postId, commentId, request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Post with id [%d] does not exist".formatted(postId));
+    }
+
+    @Test
+    public void test_update_comment_should_throw_resource_not_found_for_comment() {
+        //given
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        CommentRequest request = CommentRequest.builder()
+                .body("This is body of the updated comment").build();
+
+        Post post = Post.builder()
+                .id(postId)
+                .title("title of post")
+                .body("body of post").build();
+
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.update(postId, commentId, request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Comment with id [%d] does not exist".formatted(commentId));
+    }
+
+    @Test
+    public void test_update_comment_should_throw_request_validation() {
+        //given
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        CommentRequest request = CommentRequest.builder()
+                .body("This is body of the updated comment").build();
+
+        Post post = Post.builder()
+                .id(postId)
+                .title("title of post")
+                .body("body of post").build();
+
+        Post postForComment = Post.builder()
+                .id(2L)
+                .title("title of post")
+                .body("body of post").build();
+
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .body("Old body of comment")
+                .post(postForComment)
+                .build();
+
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+        //when
+        //then
+        assertThatThrownBy(() -> underTest.update(postId, commentId, request))
+                .isInstanceOf(RequestValidationException.class)
+                .hasMessage("Comment does not belong to post with id [%d]".formatted(postId));
+    }
 }

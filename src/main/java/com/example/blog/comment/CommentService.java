@@ -73,4 +73,17 @@ public class CommentService {
 
         return comment;
     }
+
+    public Comment update(Long postId, Long commentId, CommentRequest request) {
+        Post post = getPostById(postId);
+        Comment comment = getCommentById(commentId);
+
+        if (commentDoesNotBelongToPost(comment, post)) {
+            throw new RequestValidationException("Comment does not belong to post with id [%d]".formatted(postId));
+        }
+
+        comment.setBody(request.getBody());
+
+        return commentRepository.save(comment);
+    }
 }

@@ -5,6 +5,8 @@ import com.example.blog.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "comments")
 @Getter @Setter
