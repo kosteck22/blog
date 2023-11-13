@@ -1,5 +1,6 @@
 package com.example.blog.tag;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -7,9 +8,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -19,7 +18,7 @@ public class TagController {
     private final TagModelAssembler tagModelAssembler;
     private final PagedResourcesAssembler<Tag> pagedResourcesAssembler;
 
-    public TagController(TagService tagService, TagModelAssembler tagModelAssembler, PagedResourcesAssembler pagedResourcesAssembler) {
+    public TagController(TagService tagService, TagModelAssembler tagModelAssembler, PagedResourcesAssembler<Tag> pagedResourcesAssembler) {
         this.tagService = tagService;
         this.tagModelAssembler = tagModelAssembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
@@ -34,5 +33,12 @@ public class TagController {
         }
 
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(tagPage, tagModelAssembler));
+    }
+
+    @PostMapping
+    public ResponseEntity<TagModel> save(@Valid @RequestBody TagRequest request) {
+        Tag tag = tagService.save(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(tagModelAssembler.toModel(tag));
     }
 }

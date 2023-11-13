@@ -1,5 +1,6 @@
 package com.example.blog.tag;
 
+import com.example.blog.exception.DuplicateResourceException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,5 +18,16 @@ public class TagService {
 
     public Page<Tag> getTagsAsPage(Pageable pageable) {
         return tagRepository.findAll(pageable);
+    }
+
+    public Tag save(TagRequest request) {
+        if (tagRepository.existsByName(request.getName())) {
+            throw new DuplicateResourceException("Tag with name [%s] already exists".formatted(request.getName()));
+        }
+
+        Tag tag = Tag.builder()
+                .name(request.getName()).build();
+
+        return tagRepository.save(tag);
     }
 }
