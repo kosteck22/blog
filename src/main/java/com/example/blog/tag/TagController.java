@@ -41,4 +41,11 @@ public class TagController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(tagModelAssembler.toModel(tag));
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity<TagModel> update(@PathVariable("id") Long tagId, @Valid @RequestBody TagRequest request) {
+        Tag tag = tagService.update(tagId, request);
+
+        return ResponseEntity.ok(tagModelAssembler.toModel(tag));
+    }
 }

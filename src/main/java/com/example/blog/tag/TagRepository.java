@@ -11,5 +11,6 @@ public interface TagRepository {
     Tag save(Tag tag);
     Page<Tag> findAll(Pageable pageable);
     Optional<Tag> findById(Long id);
+    Optional<Tag> findByName(String name);
     boolean existsByName(String name);
 }
