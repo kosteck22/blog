@@ -1,5 +1,7 @@
 package com.example.blog.post;
 
+import com.example.blog.tag.TagController;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.NonNullApi;
@@ -27,5 +29,17 @@ public class PostModelAssembler extends RepresentationModelAssemblerSupport<Post
                 .withSelfRel());
 
         return postModel;
+    }
+
+    @Override
+    @NonNull
+    public CollectionModel<PostModel> toCollectionModel(@NonNull Iterable<? extends Post> entities) {
+        CollectionModel<PostModel> postsModel = super.toCollectionModel(entities);
+
+        postsModel.add(
+                linkTo(methodOn(TagController.class).getTagsAsPage(null))
+                        .withRel("tags"));
+
+        return postsModel;
     }
 }

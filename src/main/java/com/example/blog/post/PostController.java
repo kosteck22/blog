@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.tag.TagController;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,9 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -27,7 +31,19 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<PagedModel<PostModel>> getPostsAsPage(@PageableDefault(size = 5) Pageable pageable) {
-        Page<Post> postPage = postService.fetchPostDataAsPage(pageable);
+        Page<Post> postPage = postService.getPostsAsPage(pageable);
+
+        if (postPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
+        }
+
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(postPage, postModelAssembler));
+    }
+
+    @GetMapping("/tag/{id}")
+    public ResponseEntity<PagedModel<PostModel>> getPostsByTag(@PathVariable("id") Long tagId,
+                                                               @PageableDefault(size = 5) Pageable pageable) {
+        Page<Post> postPage = postService.getPostsByTagId(tagId, pageable);
 
         if (postPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
