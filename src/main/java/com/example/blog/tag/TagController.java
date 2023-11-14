@@ -35,6 +35,13 @@ public class TagController {
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(tagPage, tagModelAssembler));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<TagModel> get(@PathVariable("id") Long tagId) {
+        Tag tag = tagService.get(tagId);
+
+        return ResponseEntity.ok(tagModelAssembler.toModel(tag));
+    }
+
     @PostMapping
     public ResponseEntity<TagModel> save(@Valid @RequestBody TagRequest request) {
         Tag tag = tagService.save(request);
@@ -47,5 +54,12 @@ public class TagController {
         Tag tag = tagService.update(tagId, request);
 
         return ResponseEntity.ok(tagModelAssembler.toModel(tag));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long tagId) {
+        tagService.delete(tagId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

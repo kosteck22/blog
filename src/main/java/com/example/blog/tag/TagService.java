@@ -34,8 +34,7 @@ public class TagService {
     }
 
     public Tag update(Long tagId, TagRequest request) {
-        Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] not found".formatted(tagId)));
+        Tag tag = get(tagId);
 
         String requestName = request.getName();
 
@@ -46,5 +45,16 @@ public class TagService {
         tag.setName(requestName);
 
         return tagRepository.save(tag);
+    }
+
+    public Tag get(Long tagId) {
+        return tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] not found".formatted(tagId)));
+    }
+
+    public void delete(Long tagId) {
+        Tag tag = get(tagId);
+
+        tagRepository.delete(tag);
     }
 }

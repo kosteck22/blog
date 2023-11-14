@@ -13,4 +13,5 @@ public interface TagRepository {
     Optional<Tag> findById(Long id);
     Optional<Tag> findByName(String name);
     boolean existsByName(String name);
+    void delete(Tag tag);
 }
