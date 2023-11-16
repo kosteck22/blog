@@ -15,7 +15,7 @@ public interface PostRepository {
     Post save(Post post);
     Page<Post> findAll(Pageable pageable);
     Page<Post> findByTagsIn(List<Tag> tags, Pageable pageable);
-    Page<Post> findByCategoriesIn(List<Category> category, Pageable pageable);
+    Page<Post> findByCategoriesIn(List<Long> categoriesIds, Pageable pageable);
     List<Post> findAll();
     boolean existsByTitle(String title);
     boolean existsById(Long id);

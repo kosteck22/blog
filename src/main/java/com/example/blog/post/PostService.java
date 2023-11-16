@@ -46,7 +46,7 @@ public class PostService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists".formatted(categoryId)));
 
-        return postRepository.findByCategoriesIn(List.of(category), pageable);
+        return postRepository.findByCategoriesIn(List.of(category.getId()), pageable);
     }
 
     public Post save(PostRequest request) {
