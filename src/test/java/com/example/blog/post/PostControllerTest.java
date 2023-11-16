@@ -116,7 +116,7 @@ class PostControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Post> postPage = new PageImpl<>(posts, pageable, posts.size());
 
-        when(postService.fetchPostDataAsPage(pageable)).thenReturn(postPage);
+        when(postService.getPostsAsPage(pageable)).thenReturn(postPage);
 
         //when
         //then
@@ -149,7 +149,7 @@ class PostControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Post> postPage = new PageImpl<>(posts, pageable, posts.size());
 
-        when(postService.fetchPostDataAsPage(any())).thenReturn(postPage);
+        when(postService.getPostsAsPage(any())).thenReturn(postPage);
 
         //when
         //then

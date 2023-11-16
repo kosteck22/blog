@@ -82,7 +82,7 @@ class PostServiceTest {
         when(postRepository.findAll(pageable)).thenReturn(Page.empty());
 
         //when
-        Page<Post> posts = underTest.fetchPostDataAsPage(pageable);
+        Page<Post> posts = underTest.getPostsAsPage(pageable);
 
         //then
         assertThat(posts).isEmpty();

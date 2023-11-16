@@ -2,20 +2,18 @@ package com.example.blog.post;
 
 import com.example.blog.comment.CommentController;
 import com.example.blog.tag.TagController;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Component;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class PostModelAssembler extends RepresentationModelAssemblerSupport<Post, PostModel> {
+public class DetailedPostModelAssembler extends RepresentationModelAssemblerSupport<Post, PostModel> {
     private final PostMapper mapper;
 
-    public PostModelAssembler(PostMapper mapper) {
+    public DetailedPostModelAssembler(PostMapper mapper) {
         super(PostController.class, PostModel.class);
         this.mapper = mapper;
     }
@@ -28,7 +26,17 @@ public class PostModelAssembler extends RepresentationModelAssemblerSupport<Post
         postModel.add(
                 linkTo(methodOn(PostController.class)
                         .getById(postModel.getId()))
-                .withSelfRel());
+                        .withSelfRel());
+
+        postModel.add(
+                linkTo(methodOn(TagController.class)
+                        .getTagsForPost(postModel.getId(), null))
+                        .withRel("tags"));
+
+        postModel.add(
+                linkTo(methodOn(CommentController.class)
+                        .getCommentsForPostAsPage(postModel.getId(), null))
+                        .withRel("comments"));
 
         return postModel;
     }

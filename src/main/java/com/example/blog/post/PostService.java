@@ -3,19 +3,37 @@ package com.example.blog.post;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
+import com.example.blog.tag.Tag;
+import com.example.blog.tag.TagRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class PostService {
 
     private final PostRepository postRepository;
 
-    public PostService(PostRepository postRepository) {
+    private final TagRepository tagRepository;
+
+    public PostService(PostRepository postRepository, TagRepository tagRepository) {
         this.postRepository = postRepository;
+        this.tagRepository = tagRepository;
+    }
+
+    public Page<Post> getPostsAsPage(Pageable pageable) {
+        return postRepository.findAll(pageable);
+    }
+
+    public Page<Post> getPostsByTagId(Long tagId, Pageable pageable) {
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] does not exists".formatted(tagId)));
+
+        return postRepository.findByTagsIn(List.of(tag), pageable);
     }
 
     public Post save(PostRequest request) {
@@ -31,9 +49,6 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Page<Post> fetchPostDataAsPage(Pageable pageable) {
-        return postRepository.findAll(pageable);
-    }
 
     public Post getPostById(Long id) {
         return postRepository.findById(id)
@@ -66,4 +81,6 @@ public class PostService {
 
         return postWithRequestTitle.filter(value -> !value.getId().equals(post.getId())).isPresent();
     }
+
+
 }
