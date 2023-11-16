@@ -1,11 +1,15 @@
 package com.example.blog.category;
 
 import com.example.blog.exception.DuplicateResourceException;
+import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
+import com.example.blog.post.Post;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 
 @Service
@@ -44,5 +48,24 @@ public class CategoryService {
         Category category = get(categoryId);
 
         categoryRepository.delete(category);
+    }
+
+    public Category update(Long categoryId, CategoryRequest request) {
+        Category category = get(categoryId);
+        String requestName = request.getName();
+
+        if (nameAlreadyTaken(categoryId, requestName)) {
+            throw new RequestValidationException("Name [%s] already taken".formatted(requestName));
+        }
+
+        category.setName(requestName);
+
+        return categoryRepository.save(category);
+    }
+
+    private boolean nameAlreadyTaken(Long categoryId, String name) {
+        Optional<Category> categoryWithGivenName = categoryRepository.findByName(name);
+
+        return categoryWithGivenName.filter(value -> !value.getId().equals(categoryId)).isPresent();
     }
 }

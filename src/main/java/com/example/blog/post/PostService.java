@@ -66,7 +66,7 @@ public class PostService {
     public Post update(Long id, PostRequest request) {
         Post post = getPostById(id);
 
-        if (titleAlreadyTaken(post, request.getTitle())) {
+        if (titleAlreadyTaken(post.getId(), request.getTitle())) {
             throw new RequestValidationException("Title [%s] already taken".formatted(request.getTitle()));
         }
 
@@ -76,10 +76,10 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    private boolean titleAlreadyTaken(Post post, String title) {
+    private boolean titleAlreadyTaken(Long postId, String title) {
         Optional<Post> postWithRequestTitle = postRepository.findByTitle(title);
 
-        return postWithRequestTitle.filter(value -> !value.getId().equals(post.getId())).isPresent();
+        return postWithRequestTitle.filter(value -> !value.getId().equals(postId)).isPresent();
     }
 
 
