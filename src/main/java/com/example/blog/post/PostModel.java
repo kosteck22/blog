@@ -1,10 +1,13 @@
 package com.example.blog.post;
 
+import com.example.blog.tag.TagModel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
+
+import java.util.List;
 
 @Getter @Setter
 @Builder

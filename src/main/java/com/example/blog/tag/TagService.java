@@ -2,6 +2,8 @@ package com.example.blog.tag;
 
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.ResourceNotFoundException;
+import com.example.blog.post.Post;
+import com.example.blog.post.PostRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,12 +16,22 @@ import java.util.Optional;
 public class TagService {
     private final TagRepository tagRepository;
 
-    public TagService(@Qualifier("tag-jpa") TagRepository tagRepository) {
+    private final PostRepository postRepository;
+
+    public TagService(TagRepository tagRepository, PostRepository postRepository) {
         this.tagRepository = tagRepository;
+        this.postRepository = postRepository;
     }
 
     public Page<Tag> getTagsAsPage(Pageable pageable) {
         return tagRepository.findAll(pageable);
+    }
+
+    public Page<Tag> getTagsForPostAsPage(Long postId, Pageable pageable) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist".formatted(postId)));
+
+        return tagRepository.findByPostsIn(List.of(post), pageable);
     }
 
     public Tag save(TagRequest request) {

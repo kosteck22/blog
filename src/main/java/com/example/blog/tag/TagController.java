@@ -35,6 +35,18 @@ public class TagController {
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(tagPage, tagModelAssembler));
     }
 
+    @GetMapping("/post/{id}")
+    public ResponseEntity<PagedModel<TagModel>> getTagsForPost(@PathVariable("id") Long postId,
+                                                          @PageableDefault(size = 5) Pageable pageable) {
+        Page<Tag> tagPage = tagService.getTagsForPostAsPage(postId, pageable);
+
+        if (tagPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
+        }
+
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(tagPage, tagModelAssembler));
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<TagModel> get(@PathVariable("id") Long tagId) {
         Tag tag = tagService.get(tagId);
@@ -62,4 +74,6 @@ public class TagController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+
 }

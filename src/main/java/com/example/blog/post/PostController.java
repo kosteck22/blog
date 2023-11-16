@@ -1,12 +1,16 @@
 package com.example.blog.post;
 
+import com.example.blog.comment.Comment;
+import com.example.blog.comment.CommentController;
 import com.example.blog.tag.TagController;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +24,17 @@ public class PostController {
 
     private final PostService postService;
     private final PostModelAssembler postModelAssembler;
+    private final DetailedPostModelAssembler detailedPostModelAssembler;
     private final PagedResourcesAssembler<Post> pagedResourcesAssembler;
 
 
-    public PostController(PostService postService, PostModelAssembler postModelAssembler, PagedResourcesAssembler<Post> pagedResourcesAssembler) {
+    public PostController(PostService postService,
+                          PostModelAssembler postModelAssembler,
+                          DetailedPostModelAssembler detailedPostModelAssembler,
+                          PagedResourcesAssembler<Post> pagedResourcesAssembler) {
         this.postService = postService;
         this.postModelAssembler = postModelAssembler;
+        this.detailedPostModelAssembler = detailedPostModelAssembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
@@ -55,7 +64,8 @@ public class PostController {
     @GetMapping("{id}")
     public ResponseEntity<PostModel> getById(@PathVariable("id") Long id) {
         Post post = postService.getPostById(id);
-        return ResponseEntity.ok(postModelAssembler.toModel(post));
+
+        return ResponseEntity.ok(detailedPostModelAssembler.toModel(post));
     }
 
     @PostMapping
@@ -70,7 +80,7 @@ public class PostController {
                                     @Valid @RequestBody PostRequest request) {
         Post post = postService.update(id, request);
 
-        return ResponseEntity.ok(postModelAssembler.toModel(post));
+        return ResponseEntity.ok(detailedPostModelAssembler.toModel(post));
     }
 
     @DeleteMapping("{id}")
