@@ -11,7 +11,8 @@ import java.util.Optional;
 public interface CategoryRepository {
     List<Category> findAll();
     Page<Category> findAll(Pageable pageable);
-    Category save(Category category);
     Optional<Category> findById(Long id);
+    Category save(Category category);
     void delete(Category category);
+    boolean existsByName(String name);
 }
