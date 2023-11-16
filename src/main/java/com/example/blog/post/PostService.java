@@ -1,5 +1,7 @@
 package com.example.blog.post;
 
+import com.example.blog.category.Category;
+import com.example.blog.category.CategoryRepository;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
@@ -17,12 +19,15 @@ import java.util.Set;
 public class PostService {
 
     private final PostRepository postRepository;
-
     private final TagRepository tagRepository;
+    private final CategoryRepository categoryRepository;
 
-    public PostService(PostRepository postRepository, TagRepository tagRepository) {
+    public PostService(PostRepository postRepository,
+                       TagRepository tagRepository,
+                       CategoryRepository categoryRepository) {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public Page<Post> getPostsAsPage(Pageable pageable) {
@@ -34,6 +39,14 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] does not exists".formatted(tagId)));
 
         return postRepository.findByTagsIn(List.of(tag), pageable);
+    }
+
+
+    public Page<Post> getPostsByCategoryId(Long categoryId, Pageable pageable) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists".formatted(categoryId)));
+
+        return postRepository.findByCategoriesIn(List.of(category), pageable);
     }
 
     public Post save(PostRequest request) {
@@ -81,6 +94,4 @@ public class PostService {
 
         return postWithRequestTitle.filter(value -> !value.getId().equals(postId)).isPresent();
     }
-
-
 }
