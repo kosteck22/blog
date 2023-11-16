@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository("comment-jpa")
-public interface CommentRepositoryJPA extends CommentRepository, JpaRepository<Comment, Long> {
+public interface CommentRepositoryJpa extends CommentRepository, JpaRepository<Comment, Long> {
 
     @Query("SELECT c FROM Comment c WHERE c.post.id = ?1")
     Page<Comment> findAllInPost(Long postId, Pageable pageable);

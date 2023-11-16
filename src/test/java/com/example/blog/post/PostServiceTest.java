@@ -3,6 +3,7 @@ package com.example.blog.post;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
+import com.example.blog.tag.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,11 +26,14 @@ class PostServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private TagRepository tagRepository;
+
     private PostService underTest;
 
     @BeforeEach
     public void setUp() {
-        underTest = new PostService(postRepository);
+        underTest = new PostService(postRepository, tagRepository);
     }
 
     @Test

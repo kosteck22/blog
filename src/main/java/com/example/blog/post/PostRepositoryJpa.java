@@ -8,10 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository("post-jpa")
-public interface PostRepositoryJPA extends PostRepository, JpaRepository<Post, Long> {
+public interface PostRepositoryJpa extends PostRepository, JpaRepository<Post, Long> {
     boolean existsByTitle(String title);
     Optional<Post> findByTitle(String title);
     Page<Post> findByTagsIn(List<Tag> tags, Pageable pageable);
