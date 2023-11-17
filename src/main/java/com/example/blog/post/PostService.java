@@ -41,7 +41,6 @@ public class PostService {
         return postRepository.findByTagsIn(List.of(tag), pageable);
     }
 
-
     public Page<Post> getPostsByCategoryId(Long categoryId, Pageable pageable) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists".formatted(categoryId)));

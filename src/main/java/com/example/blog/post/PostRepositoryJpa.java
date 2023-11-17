@@ -18,6 +18,6 @@ public interface PostRepositoryJpa extends PostRepository, JpaRepository<Post, L
     Optional<Post> findByTitle(String title);
     Page<Post> findByTagsIn(List<Tag> tags, Pageable pageable);
 
-    @Query("SELECT p FROM Post p WHERE p.category.id in :ids")
+    @Query("SELECT p FROM Post p WHERE p.category.id IN :ids")
     Page<Post> findByCategoriesIn(@Param("ids") List<Long> categoriesIds, Pageable pageable);
 }
