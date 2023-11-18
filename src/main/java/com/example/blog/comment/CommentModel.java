@@ -1,19 +1,18 @@
-package com.example.blog.post;
+package com.example.blog.comment;
 
-import com.example.blog.tag.TagModel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter @Setter
 @Builder
-@Relation(itemRelation = "post", collectionRelation = "posts")
-public class PostModel extends RepresentationModel<PostModel> {
+@Relation(itemRelation = "comment", collectionRelation = "comments")
+public class CommentModel extends RepresentationModel<CommentModel> {
     private Long id;
-    private String title;
     private String body;
+    private LocalDateTime createdDate;
 }

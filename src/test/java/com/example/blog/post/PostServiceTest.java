@@ -3,7 +3,7 @@ package com.example.blog.post;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
-import jakarta.validation.constraints.Size;
+import com.example.blog.tag.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -27,11 +26,14 @@ class PostServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private TagRepository tagRepository;
+
     private PostService underTest;
 
     @BeforeEach
     public void setUp() {
-        underTest = new PostService(postRepository);
+        underTest = new PostService(postRepository, tagRepository);
     }
 
     @Test
@@ -78,13 +80,13 @@ class PostServiceTest {
     }
 
     @Test
-    public void test_fetch_post_data_as_page() {
+    public void test_fetch_post_data_as_page_empty() {
         //given
         Pageable pageable = PageRequest.of(0, 5);
         when(postRepository.findAll(pageable)).thenReturn(Page.empty());
 
         //when
-        Page<Post> posts = underTest.fetchPostDataAsPage(pageable);
+        Page<Post> posts = underTest.getPostsAsPage(pageable);
 
         //then
         assertThat(posts).isEmpty();
@@ -103,7 +105,7 @@ class PostServiceTest {
         when(postRepository.findById(id)).thenReturn(Optional.of(expected));
 
         //when
-        Post actual = underTest.getById(id);
+        Post actual = underTest.getPostById(id);
 
         //then
         assertThat(actual).isEqualTo(expected);
@@ -117,7 +119,7 @@ class PostServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.getById(id))
+        assertThatThrownBy(() -> underTest.getPostById(id))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(id));
     }
