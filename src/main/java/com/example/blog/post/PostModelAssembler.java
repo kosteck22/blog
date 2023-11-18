@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.category.CategoryController;
 import com.example.blog.comment.CommentController;
 import com.example.blog.tag.TagController;
 import org.springframework.hateoas.CollectionModel;

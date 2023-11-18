@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.category.CategoryModel;
 import com.example.blog.tag.TagModel;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,4 +17,5 @@ public class PostModel extends RepresentationModel<PostModel> {
     private Long id;
     private String title;
     private String body;
+    private CategoryModel category;
 }
