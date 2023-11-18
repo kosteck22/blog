@@ -29,6 +29,10 @@ public class Tag {
         return posts == null ? posts = new HashSet<>() : posts;
     }
 
+    public Tag(String name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

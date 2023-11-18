@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,8 +55,28 @@ public class PostService {
             throw new DuplicateResourceException("Post with title [%s] already exists".formatted(title));
         }
 
+        Long categoryId = request.getCategoryId();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists"
+                        .formatted(categoryId)));
+
+        Set<Tag> tags = new HashSet<>();
+
+        for (String tagName : request.getTags()) {
+            Optional<Tag> tagOptional = tagRepository.findByName(tagName);
+
+            if (tagOptional.isPresent()) {
+                tags.add(tagOptional.get());
+            } else {
+                Tag savedTag = tagRepository.save(new Tag(tagName));
+                tags.add(savedTag);
+            }
+        }
+
         Post post = Post.builder()
                 .title(title)
+                .category(category)
+                .tags(tags)
                 .body(request.getBody()).build();
 
         return postRepository.save(post);
@@ -64,12 +85,14 @@ public class PostService {
 
     public Post getPostById(Long id) {
         return postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
+                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist"
+                        .formatted(id)));
     }
 
     public void delete(Long id) {
         if (!postRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id));
+            throw new ResourceNotFoundException("Post with id [%d] does not exist"
+                    .formatted(id));
         }
 
         postRepository.deleteById(id);
@@ -77,12 +100,18 @@ public class PostService {
 
     public Post update(Long id, PostRequest request) {
         Post post = getPostById(id);
+        Long categoryId = request.getCategoryId();
 
         if (titleAlreadyTaken(post.getId(), request.getTitle())) {
             throw new RequestValidationException("Title [%s] already taken".formatted(request.getTitle()));
         }
 
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists"
+                        .formatted(categoryId)));
+
         post.setTitle(request.getTitle());
+        post.setCategory(category);
         post.setBody(request.getBody());
 
         return postRepository.save(post);
