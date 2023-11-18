@@ -24,6 +24,11 @@ public class DetailedPostModelAssembler extends RepresentationModelAssemblerSupp
     public PostModel toModel(@NonNull Post post) {
         PostModel postModel = mapper.apply(post);
 
+        postModel.getCategory().add(
+                        linkTo(methodOn(PostController.class)
+                                .getPostsByCategory(postModel.getCategory().getId(), null))
+                                .withRel("posts"));
+
         postModel.add(
                 linkTo(methodOn(PostController.class)
                         .getById(postModel.getId()))

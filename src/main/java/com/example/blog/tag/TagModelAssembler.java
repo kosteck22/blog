@@ -24,8 +24,13 @@ public class TagModelAssembler extends RepresentationModelAssemblerSupport<Tag, 
         TagModel tagModel = mapper.apply(tag);
 
         tagModel.add(
+                linkTo(methodOn(TagController.class).get(tag.getId()))
+                        .withSelfRel());
+
+        tagModel.add(
                 linkTo(methodOn(PostController.class)
-                        .getPostsByTag(tagModel.getId(), null)).withRel("posts"));
+                        .getPostsByTag(tagModel.getId(), null))
+                        .withRel("posts"));
 
         return tagModel;
     }
