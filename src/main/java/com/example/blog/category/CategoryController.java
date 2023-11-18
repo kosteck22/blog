@@ -1,10 +1,10 @@
 package com.example.blog.category;
 
-import com.example.blog.comment.Comment;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,42 +15,48 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final CategoryModelAssembler categoryModelAssembler;
+    private final PagedResourcesAssembler<Category> pagedResourcesAssembler;
 
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService,
+                              CategoryModelAssembler categoryModelAssembler,
+                              PagedResourcesAssembler<Category> pagedResourcesAssembler) {
         this.categoryService = categoryService;
+        this.categoryModelAssembler = categoryModelAssembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @GetMapping
-    public ResponseEntity<?> getCategoriesAsPage(@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<PagedModel<CategoryModel>> getCategoriesAsPage(@PageableDefault(size = 10) Pageable pageable) {
         Page<Category> categoryPage = categoryService.getCategoriesAsPage(pageable);
 
         if (categoryPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
         }
 
-        return ResponseEntity.ok(categoryPage);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(categoryPage, categoryModelAssembler));
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<?> get(@PathVariable("id") Long categoryId) {
+    public ResponseEntity<CategoryModel> get(@PathVariable("id") Long categoryId) {
         Category category = categoryService.get(categoryId);
 
-        return ResponseEntity.ok(category);
+        return ResponseEntity.ok(categoryModelAssembler.toModel(category));
     }
 
     @PostMapping
-    public ResponseEntity<Category> save(@Valid @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryModel> save(@Valid @RequestBody CategoryRequest categoryRequest) {
         Category category = categoryService.save(categoryRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(category);
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryModelAssembler.toModel(category));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Category> update(@PathVariable("id") Long categoryId,
+    public ResponseEntity<CategoryModel> update(@PathVariable("id") Long categoryId,
                                            @Valid @RequestBody CategoryRequest categoryRequest) {
         Category category = categoryService.update(categoryId, categoryRequest);
 
-        return ResponseEntity.ok(category);
+        return ResponseEntity.ok(categoryModelAssembler.toModel(category));
     }
 
     @DeleteMapping("{id}")
