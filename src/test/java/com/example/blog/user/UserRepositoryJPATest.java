@@ -16,7 +16,7 @@ class UserRepositoryJPATest {
 
     private final UserRepository userRepository;
 
-    public UserRepositoryJPATest(@Qualifier("jpa") UserRepository userRepository) {
+    public UserRepositoryJPATest(@Qualifier("user-jpa") UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
