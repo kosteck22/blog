@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.category.Category;
 import com.example.blog.comment.Comment;
 import com.example.blog.tag.Tag;
 import jakarta.persistence.*;
@@ -22,6 +23,10 @@ public class Post {
 
     @Column(nullable = false)
     private String body;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments;

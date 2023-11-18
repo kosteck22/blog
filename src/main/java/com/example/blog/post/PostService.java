@@ -1,5 +1,7 @@
 package com.example.blog.post;
 
+import com.example.blog.category.Category;
+import com.example.blog.category.CategoryRepository;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
@@ -17,12 +19,15 @@ import java.util.Set;
 public class PostService {
 
     private final PostRepository postRepository;
-
     private final TagRepository tagRepository;
+    private final CategoryRepository categoryRepository;
 
-    public PostService(PostRepository postRepository, TagRepository tagRepository) {
+    public PostService(PostRepository postRepository,
+                       TagRepository tagRepository,
+                       CategoryRepository categoryRepository) {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public Page<Post> getPostsAsPage(Pageable pageable) {
@@ -34,6 +39,13 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] does not exists".formatted(tagId)));
 
         return postRepository.findByTagsIn(List.of(tag), pageable);
+    }
+
+    public Page<Post> getPostsByCategoryId(Long categoryId, Pageable pageable) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists".formatted(categoryId)));
+
+        return postRepository.findByCategoriesIn(List.of(category.getId()), pageable);
     }
 
     public Post save(PostRequest request) {
@@ -66,7 +78,7 @@ public class PostService {
     public Post update(Long id, PostRequest request) {
         Post post = getPostById(id);
 
-        if (titleAlreadyTaken(post, request.getTitle())) {
+        if (titleAlreadyTaken(post.getId(), request.getTitle())) {
             throw new RequestValidationException("Title [%s] already taken".formatted(request.getTitle()));
         }
 
@@ -76,11 +88,9 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    private boolean titleAlreadyTaken(Post post, String title) {
+    private boolean titleAlreadyTaken(Long postId, String title) {
         Optional<Post> postWithRequestTitle = postRepository.findByTitle(title);
 
-        return postWithRequestTitle.filter(value -> !value.getId().equals(post.getId())).isPresent();
+        return postWithRequestTitle.filter(value -> !value.getId().equals(postId)).isPresent();
     }
-
-
 }

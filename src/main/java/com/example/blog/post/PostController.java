@@ -49,6 +49,18 @@ public class PostController {
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(postPage, postModelAssembler));
     }
 
+    @GetMapping("/category/{id}")
+    public ResponseEntity<?> getPostsByCategory(@PathVariable("id") Long categoryId,
+                                                @PageableDefault(size = 5) Pageable pageable) {
+        Page<Post> postPage = postService.getPostsByCategoryId(categoryId, pageable);
+
+        if (postPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
+        }
+
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(postPage, postModelAssembler));
+    }
+
     @GetMapping("/tag/{id}")
     public ResponseEntity<PagedModel<PostModel>> getPostsByTag(@PathVariable("id") Long tagId,
                                                                @PageableDefault(size = 5) Pageable pageable) {

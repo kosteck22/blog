@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository("tag-jpa")
-public interface TagRepositoryJPA extends TagRepository, JpaRepository<Tag, Long> {
+public interface TagRepositoryJpa extends TagRepository, JpaRepository<Tag, Long> {
     Page<Tag> findByPostsIn(List<Post> posts, Pageable pageable);
 }

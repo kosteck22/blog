@@ -2,6 +2,7 @@ package com.example.blog.comment;
 
 import com.example.blog.post.PostController;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.sql.Time;
@@ -22,11 +23,18 @@ public class CommentModelAssembler extends RepresentationModelAssemblerSupport<C
     }
 
     @Override
-    public CommentModel toModel(Comment comment) {
+    @NonNull
+    public CommentModel toModel(@NonNull Comment comment) {
         CommentModel commentModel = mapper.apply(comment);
 
         commentModel.add(
-                linkTo(methodOn(PostController.class).getById(comment.getPost().getId()))
+                linkTo(methodOn(CommentController.class)
+                        .get(comment.getPost().getId(), comment.getId()))
+                .withSelfRel());
+
+        commentModel.add(
+                linkTo(methodOn(PostController.class)
+                        .getById(comment.getPost().getId()))
                 .withRel("post"));
 
 

@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.category.CategoryController;
 import com.example.blog.comment.CommentController;
 import com.example.blog.tag.TagController;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
@@ -37,6 +38,13 @@ public class DetailedPostModelAssembler extends RepresentationModelAssemblerSupp
                 linkTo(methodOn(CommentController.class)
                         .getCommentsForPostAsPage(postModel.getId(), null))
                         .withRel("comments"));
+
+        if (post.getCategory() != null) {
+            postModel.add(
+                    linkTo(methodOn(CategoryController.class)
+                            .get(post.getCategory().getId()))
+                            .withRel("category"));
+        }
 
         return postModel;
     }
