@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@WebMvcTest(UserRestController.class)
+@WebMvcTest(UserController.class)
 class UserRestControllerTest {
 
     private static final String END_POINT_PATH = "/api/v1/users";

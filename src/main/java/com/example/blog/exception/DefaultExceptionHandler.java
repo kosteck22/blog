@@ -45,6 +45,19 @@ public class DefaultExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(InvalidUsernameOrPasswordException.class)
+    public ResponseEntity<ApiError> handleException(InvalidUsernameOrPasswordException e, HttpServletRequest request) {
+        LOGGER.error(e.getMessage(), e);
+
+        ApiError apiError = new ApiError(
+                request.getRequestURI(),
+                List.of(e.getMessage()),
+                HttpStatus.UNAUTHORIZED.value(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(RequestValidationException.class)
     public ResponseEntity<ApiError> handleException(RequestValidationException e, HttpServletRequest request) {
         LOGGER.error(e.getMessage(), e);

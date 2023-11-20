@@ -2,14 +2,17 @@ package com.example.blog.user;
 
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.ResourceNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User getById(Long id) {
@@ -33,7 +36,7 @@ public class UserService {
         User user = User.builder()
                 .email(email)
                 .username(username)
-                .password(userRegistrationRequest.getPassword())
+                .password(passwordEncoder.encode(userRegistrationRequest.getPassword()))
                 .phone(userRegistrationRequest.getPhone())
                 .firstName(userRegistrationRequest.getFirstName())
                 .lastName(userRegistrationRequest.getLastName()).build();

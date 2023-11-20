@@ -1,9 +1,9 @@
 package com.example.blog.base;
 
+import com.example.blog.auth.AuthenticationController;
 import com.example.blog.category.CategoryController;
 import com.example.blog.post.PostController;
 import com.example.blog.tag.TagController;
-import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,10 +13,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/")
 public class MainController {
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<?> index() {
         RootEntity rootEntity = createRootEntity();
 
@@ -24,6 +24,15 @@ public class MainController {
     }
 
     private RootEntity createRootEntity() {
+        String loginUrl = linkTo(
+                methodOn(AuthenticationController.class)
+                        .login(null))
+                .toString();
+
+        String signupUrl = linkTo(
+                methodOn(AuthenticationController.class)
+                        .register(null))
+                .toString();
         String categoriesUrl = linkTo(
                 methodOn(CategoryController.class).
                         getCategoriesAsPage(null))
@@ -40,6 +49,8 @@ public class MainController {
                 .toString();
 
         return RootEntity.builder()
+                .signupUrl(signupUrl)
+                .loginUrl(loginUrl)
                 .categoriesUrl(categoriesUrl)
                 .postsUrl(postsUrl)
                 .tagsUrl(tagsUrl).build();

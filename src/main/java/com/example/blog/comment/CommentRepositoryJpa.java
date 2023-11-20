@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository("comment-jpa")
 public interface CommentRepositoryJpa extends CommentRepository, JpaRepository<Comment, Long> {
 
-    @Query("SELECT c FROM Comment c WHERE c.post.id = ?1")
+    @Query("SELECT c FROM Comment c WHERE c.post.id=?1")
     Page<Comment> findAllInPost(Long postId, Pageable pageable);
 }

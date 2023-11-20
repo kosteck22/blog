@@ -1,7 +1,11 @@
 package com.example.blog.user;
 
+import com.example.blog.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -30,4 +34,20 @@ public class User {
 
     @Column(name = "phone", nullable = false)
     private String phone;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
+    public Set<Role> getRoles() {
+        return roles == null ? roles = new HashSet<>() : roles;
+    }
+
+    public void addRole(Role role) {
+        getRoles().add(role);
+    }
 }
