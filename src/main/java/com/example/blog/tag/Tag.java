@@ -1,5 +1,7 @@
 package com.example.blog.tag;
 
+import com.example.blog.audit.DateAudit;
+import com.example.blog.audit.UserDateAudit;
 import com.example.blog.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +15,7 @@ import java.util.Set;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Tag {
+public class Tag extends UserDateAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

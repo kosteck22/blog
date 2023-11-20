@@ -1,5 +1,7 @@
 package com.example.blog.category;
 
+import com.example.blog.audit.DateAudit;
+import com.example.blog.audit.UserDateAudit;
 import com.example.blog.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter @Setter
 @Builder
-public class Category {
+public class Category extends UserDateAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

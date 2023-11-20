@@ -1,5 +1,7 @@
 package com.example.blog.post;
 
+import com.example.blog.audit.DateAudit;
+import com.example.blog.audit.UserDateAudit;
 import com.example.blog.category.Category;
 import com.example.blog.comment.Comment;
 import com.example.blog.tag.Tag;
@@ -13,7 +15,7 @@ import java.util.*;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Post {
+public class Post extends UserDateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

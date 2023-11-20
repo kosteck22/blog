@@ -1,5 +1,6 @@
 package com.example.blog.user;
 
+import com.example.blog.audit.DateAudit;
 import com.example.blog.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +13,7 @@ import java.util.Set;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class User {
+public class User extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -6,7 +6,6 @@ import com.example.blog.role.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -20,11 +19,11 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         /*Role user = Role.builder()
-                .name(AppRoles.ROLE_USER)
+                .name(AppRoles.SER)
                 .description("User can create new posts and comments.").build();
 
         Role admin = Role.builder()
-                .name(AppRoles.ROLE_ADMIN)
+                .name(AppRoles.ADMIN)
                 .description("Admin can remove other users, posts, comments, tags, add categories").build();
 
         roleRepository.save(user);

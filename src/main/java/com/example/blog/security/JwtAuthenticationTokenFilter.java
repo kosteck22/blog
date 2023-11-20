@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 
 @Component
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
@@ -29,20 +30,15 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = getAuthorizationToken(request);
-        try {
-            if (StringUtils.hasText(token) && jwtTokenUtil.isTokenValid(token)) {
-                String username = jwtTokenUtil.getSubject(token);
-                UserDetails userDetails = detailsService.loadUserByUsername(username);
 
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        if (StringUtils.hasText(token) && jwtTokenUtil.isTokenValid(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+            String username = jwtTokenUtil.getSubject(token);
+            UserDetails userDetails = detailsService.loadUserByUsername(username);
 
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            }
-        } catch (Exception ex) {
-            SecurityContextHolder.clearContext();
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
-            return;
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
 
         filterChain.doFilter(request, response);

@@ -1,5 +1,6 @@
 package com.example.blog.security;
 
+import com.example.blog.role.AppRoles;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -24,21 +26,40 @@ public class SecurityFilterChainConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(AbstractHttpConfigurer::disable);
+        http
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable);
+
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/identities/email/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/identities/username/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/categories",
+                                "/api/v1/tags",
+                                "/api/v1/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/v1/categories/*",
+                                "/api/v1/tags").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/v1/categories/*",
+                                "/api/v1/tags").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/v1/posts/*/comments/*",
+                                "/api/v1/posts/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/v1/posts/*/comments",
+                                "/api/v1/posts/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/posts/*/comments",
+                                "/api/v1/posts").hasAnyRole("USER")
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(((request, response, authException) ->
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage())))
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage())
+                        ))
                 );
 
         return http.build();
