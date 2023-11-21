@@ -81,10 +81,10 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Post> save(@Valid @RequestBody PostRequest request) {
+    public ResponseEntity<PostModel> save(@Valid @RequestBody PostRequest request) {
         Post post = postService.save(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(post);
+        return ResponseEntity.status(HttpStatus.CREATED).body(detailedPostModelAssembler.toModel(post));
     }
 
     @PutMapping("{id}")

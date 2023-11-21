@@ -7,14 +7,13 @@ import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
 import com.example.blog.tag.Tag;
 import com.example.blog.tag.TagRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -36,52 +35,14 @@ public class PostService {
     }
 
     public Page<Post> getPostsByTagId(Long tagId, Pageable pageable) {
-        Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] does not exists".formatted(tagId)));
-
-        return postRepository.findByTagsIn(List.of(tag), pageable);
+        Tag tag = getTagById(tagId);
+        return postRepository.findByTagsIn(Collections.singletonList(tag), pageable);
     }
 
     public Page<Post> getPostsByCategoryId(Long categoryId, Pageable pageable) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists".formatted(categoryId)));
-
-        return postRepository.findByCategoriesIn(List.of(category.getId()), pageable);
+        Category category = getCategoryById(categoryId);
+        return postRepository.findByCategoriesIn(Collections.singletonList(category.getId()), pageable);
     }
-
-    public Post save(PostRequest request) {
-        String title = request.getTitle();
-        if (postRepository.existsByTitle(title)) {
-            throw new DuplicateResourceException("Post with title [%s] already exists".formatted(title));
-        }
-
-        Long categoryId = request.getCategoryId();
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists"
-                        .formatted(categoryId)));
-
-        Set<Tag> tags = new HashSet<>();
-
-        for (String tagName : request.getTags()) {
-            Optional<Tag> tagOptional = tagRepository.findByName(tagName);
-
-            if (tagOptional.isPresent()) {
-                tags.add(tagOptional.get());
-            } else {
-                Tag savedTag = tagRepository.save(new Tag(tagName));
-                tags.add(savedTag);
-            }
-        }
-
-        Post post = Post.builder()
-                .title(title)
-                .category(category)
-                .tags(tags)
-                .body(request.getBody()).build();
-
-        return postRepository.save(post);
-    }
-
 
     public Post getPostById(Long id) {
         return postRepository.findById(id)
@@ -89,37 +50,77 @@ public class PostService {
                         .formatted(id)));
     }
 
+    @Transactional
+    public Post save(PostRequest request) {
+        validatePostRequest(request);
+        Category category = getCategoryById(request.getCategoryId());
+        Set<Tag> tags = createOrUpdateTags(request.getTags());
+        Post post = buildPost(request, category, tags);
+
+        return postRepository.save(post);
+    }
+
+    @Transactional
+    public Post update(Long id, PostRequest request) {
+        Post existingPost = getPostById(id);
+        Category category = getCategoryById(request.getCategoryId());
+
+        if (titleAlreadyTaken(id, request.getTitle())) {
+            throw new RequestValidationException("Title [%s] already taken".formatted(request.getTitle()));
+        }
+        Set<Tag> tags = createOrUpdateTags(request.getTags());
+
+        existingPost.setTitle(request.getTitle());
+        existingPost.setCategory(category);
+        existingPost.setBody(request.getBody());
+        existingPost.setTags(tags);
+
+        return postRepository.save(existingPost);
+    }
+
     public void delete(Long id) {
         if (!postRepository.existsById(id)) {
             throw new ResourceNotFoundException("Post with id [%d] does not exist"
                     .formatted(id));
         }
-
         postRepository.deleteById(id);
     }
 
-    public Post update(Long id, PostRequest request) {
-        Post post = getPostById(id);
-        Long categoryId = request.getCategoryId();
-
-        if (titleAlreadyTaken(post.getId(), request.getTitle())) {
-            throw new RequestValidationException("Title [%s] already taken".formatted(request.getTitle()));
-        }
-
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists"
-                        .formatted(categoryId)));
-
-        post.setTitle(request.getTitle());
-        post.setCategory(category);
-        post.setBody(request.getBody());
-
-        return postRepository.save(post);
+    private static Post buildPost(PostRequest request, Category category, Set<Tag> tags) {
+        return Post.builder()
+                .title(request.getTitle())
+                .category(category)
+                .tags(tags)
+                .body(request.getBody()).build();
     }
 
     private boolean titleAlreadyTaken(Long postId, String title) {
-        Optional<Post> postWithRequestTitle = postRepository.findByTitle(title);
+        return postRepository.findByTitle(title)
+                .filter(existingPost -> !existingPost.getId().equals(postId))
+                .isPresent();
+    }
 
-        return postWithRequestTitle.filter(value -> !value.getId().equals(postId)).isPresent();
+    private Tag getTagById(Long tagId) {
+        return tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] does not exists".formatted(tagId)));
+    }
+
+    private Category getCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists".formatted(categoryId)));
+    }
+
+    private Set<Tag> createOrUpdateTags(List<String> tagNames) {
+        return tagNames.stream()
+                .map(tagName -> tagRepository.findByName(tagName)
+                        .orElseGet(() -> tagRepository.save(new Tag(tagName))))
+                .collect(Collectors.toSet());
+    }
+
+    private void validatePostRequest(PostRequest request) {
+        String title = request.getTitle();
+        if (postRepository.existsByTitle(title)) {
+            throw new DuplicateResourceException("Post with title [%s] already exists".formatted(title));
+        }
     }
 }
