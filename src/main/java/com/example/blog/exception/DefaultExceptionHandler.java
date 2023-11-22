@@ -72,6 +72,19 @@ public class DefaultExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(CustomAuthorizationException.class)
+    public ResponseEntity<ApiError> handleException(CustomAuthorizationException e, HttpServletRequest request) {
+        LOGGER.error(e.getMessage(), e);
+
+        ApiError apiError = new ApiError(
+                request.getRequestURI(),
+                List.of(e.getMessage()),
+                HttpStatus.FORBIDDEN.value(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException e, HttpServletRequest request) {
         LOGGER.error(e.getMessage(), e);

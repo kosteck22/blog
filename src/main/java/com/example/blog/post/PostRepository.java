@@ -22,4 +22,5 @@ public interface PostRepository {
     Optional<Post> findById(Long id);
     Optional<Post> findByTitle(String title);
     void deleteById(Long id);
+    void delete(Post post);
 }

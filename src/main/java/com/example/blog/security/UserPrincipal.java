@@ -1,5 +1,6 @@
 package com.example.blog.security;
 
+import com.example.blog.role.Role;
 import com.example.blog.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,36 +11,41 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-
+@Getter
 public class UserPrincipal implements UserDetails {
-    private final User user;
+    private final Long id;
+    private final String email;
+    private final String username;
+    private final String password;
+    private final Set<Role> roles;
 
-    public UserPrincipal(User user) {
-        this.user = user;
+    public UserPrincipal(Long id, String email, String username, String password, Set<Role> roles) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles()
+        return roles
                 .stream()
                 .map(r -> new SimpleGrantedAuthority(r.getName().name()))
                 .collect(Collectors.toSet());
     }
 
-    public String getEmail() {
-        return user.getEmail();
-    }
-
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return username;
     }
 
     @Override

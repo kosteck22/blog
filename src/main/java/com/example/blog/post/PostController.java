@@ -2,6 +2,8 @@ package com.example.blog.post;
 
 import com.example.blog.comment.Comment;
 import com.example.blog.comment.CommentController;
+import com.example.blog.security.CurrentUser;
+import com.example.blog.security.UserPrincipal;
 import com.example.blog.tag.TagController;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -81,23 +83,26 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostModel> save(@Valid @RequestBody PostRequest request) {
-        Post post = postService.save(request);
+    public ResponseEntity<PostModel> save(@Valid @RequestBody PostRequest request,
+                                          @CurrentUser UserPrincipal currentUser) {
+        Post post = postService.save(request, currentUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(detailedPostModelAssembler.toModel(post));
     }
 
     @PutMapping("{id}")
     public ResponseEntity<PostModel> update(@PathVariable("id") Long id,
-                                    @Valid @RequestBody PostRequest request) {
-        Post post = postService.update(id, request);
+                                            @Valid @RequestBody PostRequest request,
+                                            @CurrentUser UserPrincipal currentUser) {
+        Post post = postService.update(id, request, currentUser);
 
         return ResponseEntity.ok(detailedPostModelAssembler.toModel(post));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
-        postService.delete(id);
+    public ResponseEntity<String> delete(@PathVariable("id") Long id,
+                                         @CurrentUser UserPrincipal currentUser) {
+        postService.delete(id, currentUser);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }

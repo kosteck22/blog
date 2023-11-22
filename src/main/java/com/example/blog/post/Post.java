@@ -5,6 +5,7 @@ import com.example.blog.audit.UserDateAudit;
 import com.example.blog.category.Category;
 import com.example.blog.comment.Comment;
 import com.example.blog.tag.Tag;
+import com.example.blog.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,10 @@ public class Post extends UserDateAudit {
 
     @Column(nullable = false)
     private String body;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
