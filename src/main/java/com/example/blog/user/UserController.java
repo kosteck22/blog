@@ -66,10 +66,4 @@ public class UserController {
 
         return ResponseEntity.ok(user);
     }
-
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        StringTrimmerEditor editor = new StringTrimmerEditor(true);
-        binder.registerCustomEditor(String.class, editor);
-    }
 }

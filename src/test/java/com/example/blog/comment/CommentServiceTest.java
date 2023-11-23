@@ -33,7 +33,7 @@ class CommentServiceTest {
 
     @BeforeEach
     public void setUp() {
-        underTest = new CommentService(commentRepository, postRepository);
+        underTest = new CommentService(commentRepository, postRepository, null, null);
     }
 
     @Test
@@ -82,7 +82,7 @@ class CommentServiceTest {
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
         //when
-        underTest.save(postId, request);
+        underTest.save(postId, request, null);
 
         //then
         ArgumentCaptor<Comment> commentArgumentCaptor = ArgumentCaptor.forClass(Comment.class);
@@ -108,7 +108,7 @@ class CommentServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.save(postId, request))
+        assertThatThrownBy(() -> underTest.save(postId, request, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(postId));
         verify(commentRepository, never()).save(any());
@@ -122,7 +122,7 @@ class CommentServiceTest {
         when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
         //when
-        assertThatThrownBy(() -> underTest.delete(postId, commentId))
+        assertThatThrownBy(() -> underTest.delete(postId, commentId, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(postId));
 
@@ -144,7 +144,7 @@ class CommentServiceTest {
         when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
 
         //when
-        assertThatThrownBy(() -> underTest.delete(postId, commentId))
+        assertThatThrownBy(() -> underTest.delete(postId, commentId, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Comment with id [%d] does not exist".formatted(commentId));
 
@@ -173,7 +173,7 @@ class CommentServiceTest {
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when
-        assertThatThrownBy(() -> underTest.delete(postId, commentId))
+        assertThatThrownBy(() -> underTest.delete(postId, commentId, null))
                 .isInstanceOf(RequestValidationException.class)
                 .hasMessage("Comment does not belong to post with id [%d]".formatted(postId));
 
@@ -201,7 +201,7 @@ class CommentServiceTest {
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when
-        underTest.delete(postId, commentId);
+        underTest.delete(postId, commentId, null);
 
         //then
         ArgumentCaptor<Comment> commentArgumentCaptor = ArgumentCaptor.forClass(Comment.class);
@@ -340,7 +340,7 @@ class CommentServiceTest {
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
         //when
-        underTest.update(postId, commentId, request);
+        underTest.update(postId, commentId, request, null);
 
         //then
         ArgumentCaptor<Comment> commentArgumentCaptor = ArgumentCaptor.forClass(Comment.class);
@@ -367,7 +367,7 @@ class CommentServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.update(postId, commentId, request))
+        assertThatThrownBy(() -> underTest.update(postId, commentId, request, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(postId));
     }
@@ -391,7 +391,7 @@ class CommentServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.update(postId, commentId, request))
+        assertThatThrownBy(() -> underTest.update(postId, commentId, request, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Comment with id [%d] does not exist".formatted(commentId));
     }
@@ -426,7 +426,7 @@ class CommentServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.update(postId, commentId, request))
+        assertThatThrownBy(() -> underTest.update(postId, commentId, request, null))
                 .isInstanceOf(RequestValidationException.class)
                 .hasMessage("Comment does not belong to post with id [%d]".formatted(postId));
     }

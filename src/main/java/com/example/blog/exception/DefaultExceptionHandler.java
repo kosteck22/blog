@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class DefaultExceptionHandler {
                 request.getRequestURI(),
                 List.of(e.getMessage()),
                 HttpStatus.NOT_FOUND.value(),
-                LocalDateTime.now()
+                new Date()
         );
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
@@ -41,7 +42,7 @@ public class DefaultExceptionHandler {
                 request.getRequestURI(),
                 List.of(e.getMessage()),
                 HttpStatus.CONFLICT.value(),
-                LocalDateTime.now()
+                new Date()
         );
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
@@ -54,7 +55,7 @@ public class DefaultExceptionHandler {
                 request.getRequestURI(),
                 List.of(e.getMessage()),
                 HttpStatus.UNAUTHORIZED.value(),
-                LocalDateTime.now()
+                new Date()
         );
         return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
     }
@@ -67,7 +68,7 @@ public class DefaultExceptionHandler {
                 request.getRequestURI(),
                 List.of(e.getMessage()),
                 HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now()
+                new Date()
         );
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
@@ -80,7 +81,7 @@ public class DefaultExceptionHandler {
                 request.getRequestURI(),
                 List.of(e.getMessage()),
                 HttpStatus.FORBIDDEN.value(),
-                LocalDateTime.now()
+                new Date()
         );
         return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
     }
@@ -98,7 +99,7 @@ public class DefaultExceptionHandler {
                 request.getRequestURI(),
                 fieldErrors,
                 HttpStatus.BAD_REQUEST.value(),
-                LocalDateTime.now()
+                new Date()
         );
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
@@ -111,7 +112,7 @@ public class DefaultExceptionHandler {
                 request.getRequestURI(),
                 List.of(e.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                LocalDateTime.now()
+                new Date()
         );
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }

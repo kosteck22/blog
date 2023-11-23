@@ -1,11 +1,14 @@
 package com.example.blog.user;
 
 import com.example.blog.audit.DateAudit;
+import com.example.blog.comment.Comment;
+import com.example.blog.post.Post;
 import com.example.blog.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -43,6 +46,12 @@ public class User extends DateAudit {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments;
 
     public Set<Role> getRoles() {
         return roles == null ? roles = new HashSet<>() : roles;

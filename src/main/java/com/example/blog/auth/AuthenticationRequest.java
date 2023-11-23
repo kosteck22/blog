@@ -10,9 +10,9 @@ import lombok.*;
 @Getter @Setter
 @Builder
 public class AuthenticationRequest {
-    @NotNull
+    @NotBlank
     private String username;
 
-    @NotNull
+    @NotBlank
     private String password;
 }

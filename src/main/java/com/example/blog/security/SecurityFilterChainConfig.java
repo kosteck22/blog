@@ -56,6 +56,8 @@ public class SecurityFilterChainConfig {
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/v1/users/*/promote-to-admin",
                                 "/api/v1/users/*/remove-admin-role").hasRole("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/users/me").hasRole("USER")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

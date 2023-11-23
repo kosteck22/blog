@@ -35,15 +35,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid AuthenticationRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthenticationRequest request) {
         AuthResponse response = authenticationService.login(request);
 
         return ResponseEntity.ok(response);
-    }
-
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        StringTrimmerEditor editor = new StringTrimmerEditor(true);
-        binder.registerCustomEditor(String.class, editor);
     }
 }

@@ -76,10 +76,4 @@ public class TagController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        StringTrimmerEditor editor = new StringTrimmerEditor(true);
-        binder.registerCustomEditor(String.class, editor);
-    }
 }

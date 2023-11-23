@@ -24,7 +24,7 @@ class UserServiceTest {
 
     @BeforeEach
     public void setUp() {
-        underTest = new UserService(userRepository, passwordEncoder);
+        underTest = new UserService(userRepository, null, null);
     }
 
     @Test

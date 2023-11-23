@@ -3,6 +3,7 @@ package com.example.blog.category;
 import com.example.blog.audit.DateAudit;
 import com.example.blog.audit.UserDateAudit;
 import com.example.blog.post.Post;
+import com.example.blog.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -56,7 +56,7 @@ class PostControllerTest {
                 .body(body)
                 .build();
         String requestBody = objectMapper.writeValueAsString(request);
-        when(postService.save(request)).thenReturn(post);
+        when(postService.save(request, null)).thenReturn(post);
 
         //when
         //then
@@ -223,7 +223,7 @@ class PostControllerTest {
     public void test_delete_post_should_return_404_not_found() throws Exception {
         //given
         Long id = 1L;
-        doThrow(ResourceNotFoundException.class).when(postService).delete(id);
+        doThrow(ResourceNotFoundException.class).when(postService).delete(id, null);
 
         //when
         mockMvc.perform(delete(END_POINT_PATH + "/" + id).contentType(MediaType.APPLICATION_JSON))
@@ -246,7 +246,7 @@ class PostControllerTest {
                 .body(body)
                 .build();
         String requestBody = objectMapper.writeValueAsString(request);
-        when(postService.update(id, request)).thenReturn(post);
+        when(postService.update(id, request, null)).thenReturn(post);
 
         //when
         //then
@@ -275,7 +275,7 @@ class PostControllerTest {
                 .body(body)
                 .build();
         String requestBody = objectMapper.writeValueAsString(request);
-        when(postService.update(id, request)).thenThrow(new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
+        when(postService.update(id, request, null)).thenThrow(new ResourceNotFoundException("Post with id [%d] does not exist".formatted(id)));
 
         //when
         //then

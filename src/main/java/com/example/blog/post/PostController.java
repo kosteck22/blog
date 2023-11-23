@@ -77,6 +77,18 @@ public class PostController {
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(postPage, postModelAssembler));
     }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<PagedModel<PostModel>> getPostsByUser(@PathVariable("id") Long userId,
+                                                                @PageableDefault(size = 5) Pageable pageable) {
+        Page<Post> postPage = postService.getPostsByUserId(userId, pageable);
+
+        if (postPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
+        }
+
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(postPage, postModelAssembler));
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<PostModel> getById(@PathVariable("id") Long id) {
         Post post = postService.getPostById(id);
@@ -107,11 +119,5 @@ public class PostController {
         postService.delete(id, currentUser);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-    }
-
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        StringTrimmerEditor editor = new StringTrimmerEditor(true);
-        binder.registerCustomEditor(String.class, editor);
     }
 }

@@ -33,7 +33,7 @@ class PostServiceTest {
 
     @BeforeEach
     public void setUp() {
-        underTest = new PostService(postRepository, tagRepository);
+        underTest = new PostService(postRepository, tagRepository, null, null, null);
     }
 
     @Test
@@ -47,7 +47,7 @@ class PostServiceTest {
         when(postRepository.existsByTitle(title)).thenReturn(false);
 
         //when
-        underTest.save(request);
+        underTest.save(request, null);
 
         //then
         ArgumentCaptor<Post> postArgumentCaptor = ArgumentCaptor.forClass(Post.class);
@@ -73,7 +73,7 @@ class PostServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.save(request))
+        assertThatThrownBy(() -> underTest.save(request, null))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessage("Post with title [%s] already exists".formatted(title));
         verify(postRepository, never()).save(any());
@@ -131,7 +131,7 @@ class PostServiceTest {
         when(postRepository.existsById(id)).thenReturn(true);
 
         //when
-        underTest.delete(id);
+        underTest.delete(id, null);
 
         //then
         verify(postRepository).deleteById(id);
@@ -144,7 +144,7 @@ class PostServiceTest {
         when(postRepository.existsById(id)).thenReturn(false);
 
         //when
-        assertThatThrownBy(() -> underTest.delete(id))
+        assertThatThrownBy(() -> underTest.delete(id, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(id));
 
@@ -172,7 +172,7 @@ class PostServiceTest {
         when(postRepository.findByTitle(requestTitle)).thenReturn(Optional.empty());
 
         //when
-        underTest.update(id, request);
+        underTest.update(id, request, null);
 
         //then
         ArgumentCaptor<Post> postArgumentCaptor = ArgumentCaptor.forClass(Post.class);
@@ -197,7 +197,7 @@ class PostServiceTest {
         when(postRepository.findById(id)).thenReturn(Optional.empty());
 
         //when
-        assertThatThrownBy(() -> underTest.update(id, request))
+        assertThatThrownBy(() -> underTest.update(id, request, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(id));
 
@@ -230,7 +230,7 @@ class PostServiceTest {
         when(postRepository.findByTitle(requestTitle)).thenReturn(Optional.of(postFromDB));
 
         //when
-        assertThatThrownBy(() -> underTest.update(id, request))
+        assertThatThrownBy(() -> underTest.update(id, request, null))
                 .isInstanceOf(RequestValidationException.class)
                 .hasMessage("Title [%s] already taken".formatted(requestTitle));
 

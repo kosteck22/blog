@@ -48,6 +48,12 @@ public class PostService {
         return postRepository.findAll(pageable);
     }
 
+    public Post getPostById(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist"
+                        .formatted(id)));
+    }
+
     public Page<Post> getPostsByTagId(Long tagId, Pageable pageable) {
         Tag tag = getTagById(tagId);
         return postRepository.findByTagsIn(Collections.singletonList(tag), pageable);
@@ -58,10 +64,9 @@ public class PostService {
         return postRepository.findByCategoriesIn(Collections.singletonList(category.getId()), pageable);
     }
 
-    public Post getPostById(Long id) {
-        return postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist"
-                        .formatted(id)));
+    public Page<Post> getPostsByUserId(Long userId, Pageable pageable) {
+        User user = getUserById(userId);
+        return postRepository.findByUsersIn(Collections.singletonList(user.getId()), pageable);
     }
 
     @Transactional
@@ -127,6 +132,10 @@ public class PostService {
 
     private User getUser(UserPrincipal currentUser) {
         return userRetrievalService.getUserByEmail(currentUser.getEmail());
+    }
+
+    private User getUserById(Long userId) {
+        return userRetrievalService.getUserById(userId);
     }
 
     private Tag getTagById(Long tagId) {

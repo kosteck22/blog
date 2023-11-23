@@ -161,7 +161,7 @@ class CommentControllerTest {
                 .body("This is body of the new comment").build();
         String requestBody = objectMapper.writeValueAsString(commentRequest);
 
-        when(commentService.save(postId, commentRequest)).thenThrow(ResourceNotFoundException.class);
+        when(commentService.save(postId, commentRequest, null)).thenThrow(ResourceNotFoundException.class);
 
         //when
         //then
@@ -193,7 +193,7 @@ class CommentControllerTest {
 
         String requestBody = objectMapper.writeValueAsString(commentRequest);
 
-        when(commentService.save(postId, commentRequest)).thenReturn(comment);
+        when(commentService.save(postId, commentRequest, null)).thenReturn(comment);
 
         //when
         //then
@@ -219,7 +219,7 @@ class CommentControllerTest {
                 .andExpect(status().isNoContent())
                 .andDo(print());
 
-        verify(commentService).delete(postId, commentId);
+        verify(commentService).delete(postId, commentId, null);
     }
 
     @Test
@@ -286,7 +286,7 @@ class CommentControllerTest {
 
         String requestBody = objectMapper.writeValueAsString(commentRequest);
 
-        when(commentService.update(postId, commentId, commentRequest)).thenThrow(ResourceNotFoundException.class);
+        when(commentService.update(postId, commentId, commentRequest, null)).thenThrow(ResourceNotFoundException.class);
 
         //when
         //then
@@ -319,7 +319,7 @@ class CommentControllerTest {
 
         String requestBody = objectMapper.writeValueAsString(commentRequest);
 
-        when(commentService.update(postId, commentId, commentRequest)).thenReturn(comment);
+        when(commentService.update(postId, commentId, commentRequest, null)).thenReturn(comment);
 
         //when
         //then
