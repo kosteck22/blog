@@ -26,35 +26,9 @@ public class TagService {
     }
 
     public Page<Tag> getTagsForPostAsPage(Long postId, Pageable pageable) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist".formatted(postId)));
+        Post post = getPostById(postId);
 
         return tagRepository.findByPostsIn(List.of(post), pageable);
-    }
-
-    public Tag save(TagRequest request) {
-        if (tagRepository.existsByName(request.getName())) {
-            throw new DuplicateResourceException("Tag with name [%s] already exists".formatted(request.getName()));
-        }
-
-        Tag tag = Tag.builder()
-                .name(request.getName()).build();
-
-        return tagRepository.save(tag);
-    }
-
-    public Tag update(Long tagId, TagRequest request) {
-        Tag tag = getTagById(tagId);
-
-        String requestName = request.getName();
-
-        if (tagRepository.existsByName(requestName)) {
-            throw new DuplicateResourceException("Tag with name [%s] already exists".formatted(requestName));
-        }
-
-        tag.setName(requestName);
-
-        return tagRepository.save(tag);
     }
 
     public Tag getTagById(Long tagId) {
@@ -62,9 +36,40 @@ public class TagService {
                 .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] not found".formatted(tagId)));
     }
 
+    public Tag save(TagRequest request) {
+        validateRequest(request);
+        Tag tag = Tag.builder()
+                .name(request.getName()).build();
+
+        return tagRepository.save(tag);
+    }
+
+    public Tag update(Long tagId, TagRequest request) {
+        validateRequest(request);
+        Tag tag = getTagById(tagId);
+        tag.setName(request.getName());
+
+        return tagRepository.save(tag);
+    }
+
     public void delete(Long tagId) {
         Tag tag = getTagById(tagId);
 
         tagRepository.delete(tag);
+    }
+
+    private Post getPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post with id [%d] does not exist".formatted(postId)));
+    }
+
+    private void validateRequest(TagRequest request) {
+        validateTagName(request.getName());
+    }
+
+    private void validateTagName(String requestName) {
+        if (tagRepository.existsByName(requestName)) {
+            throw new DuplicateResourceException("Tag with name [%s] already exists".formatted(requestName));
+        }
     }
 }

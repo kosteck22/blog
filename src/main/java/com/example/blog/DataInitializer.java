@@ -28,5 +28,11 @@ public class DataInitializer implements CommandLineRunner {
 
         roleRepository.save(user);
         roleRepository.save(admin);*/
+
+        Role superAdmin = Role.builder()
+                .name(AppRoles.ROLE_SUPER_ADMIN)
+                .description("Super Admin is the main account of the application. Can give and remove admin roles to users").build();
+
+        roleRepository.save(superAdmin);
     }
 }

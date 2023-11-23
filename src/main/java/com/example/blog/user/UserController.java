@@ -1,5 +1,7 @@
 package com.example.blog.user;
 
+import com.example.blog.security.CurrentUser;
+import com.example.blog.security.UserPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +23,32 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("me")
+    public ResponseEntity<User> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+        User user = userService.getByEmail(currentUser.getEmail());
+
+        return ResponseEntity.ok(user);
+    }
+
     @PostMapping
     public ResponseEntity<User> addUser(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
         User savedUser = userService.addUser(userRegistrationRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    }
+
+    @PutMapping("{id}/promote-to-admin")
+    public ResponseEntity<User> addAdminRole(@PathVariable("id") Long userId) {
+        User user = userService.addAdminRole(userId);
+
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("{id}/remove-admin-role")
+    public ResponseEntity<User> removeAdminRole(@PathVariable("id") Long userId) {
+        User user = userService.removeAdminRole(userId);
+
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/identities/email/{email}")

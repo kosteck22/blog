@@ -17,7 +17,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public CategoryService(@Qualifier("category-jpa") CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
@@ -53,19 +53,22 @@ public class CategoryService {
     public Category update(Long categoryId, CategoryRequest request) {
         Category category = get(categoryId);
         String requestName = request.getName();
-
-        if (nameAlreadyTaken(categoryId, requestName)) {
-            throw new RequestValidationException("Name [%s] already taken".formatted(requestName));
-        }
+        validateName(categoryId, requestName);
 
         category.setName(requestName);
 
         return categoryRepository.save(category);
     }
 
-    private boolean nameAlreadyTaken(Long categoryId, String name) {
-        Optional<Category> categoryWithGivenName = categoryRepository.findByName(name);
+    private void validateName(Long categoryId, String requestName) {
+        if (nameAlreadyTaken(categoryId, requestName)) {
+            throw new RequestValidationException("Name [%s] already taken".formatted(requestName));
+        }
+    }
 
-        return categoryWithGivenName.filter(value -> !value.getId().equals(categoryId)).isPresent();
+    private boolean nameAlreadyTaken(Long categoryId, String name) {
+        return categoryRepository.findByName(name)
+                .filter(value -> !value.getId().equals(categoryId))
+                .isPresent();
     }
 }
