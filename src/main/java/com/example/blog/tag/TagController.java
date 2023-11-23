@@ -49,7 +49,7 @@ public class TagController {
 
     @GetMapping("{id}")
     public ResponseEntity<TagModel> get(@PathVariable("id") Long tagId) {
-        Tag tag = tagService.get(tagId);
+        Tag tag = tagService.getTagById(tagId);
 
         return ResponseEntity.ok(tagModelAssembler.toModel(tag));
     }

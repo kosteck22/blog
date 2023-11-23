@@ -4,13 +4,11 @@ import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.ResourceNotFoundException;
 import com.example.blog.post.Post;
 import com.example.blog.post.PostRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TagService {
@@ -46,7 +44,7 @@ public class TagService {
     }
 
     public Tag update(Long tagId, TagRequest request) {
-        Tag tag = get(tagId);
+        Tag tag = getTagById(tagId);
 
         String requestName = request.getName();
 
@@ -59,13 +57,13 @@ public class TagService {
         return tagRepository.save(tag);
     }
 
-    public Tag get(Long tagId) {
+    public Tag getTagById(Long tagId) {
         return tagRepository.findById(tagId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] not found".formatted(tagId)));
     }
 
     public void delete(Long tagId) {
-        Tag tag = get(tagId);
+        Tag tag = getTagById(tagId);
 
         tagRepository.delete(tag);
     }

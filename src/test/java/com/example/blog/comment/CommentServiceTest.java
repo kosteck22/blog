@@ -45,7 +45,7 @@ class CommentServiceTest {
         when(postRepository.existsById(postId)).thenReturn(true);
 
         //when
-        Page<Comment> actual = underTest.fetchCommentDataForPostAsPage(postId, pageable);
+        Page<Comment> actual = underTest.getCommentsAsPage(postId, pageable);
 
         //then
         assertThat(actual).isEmpty();
@@ -61,7 +61,7 @@ class CommentServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.fetchCommentDataForPostAsPage(postId, pageable))
+        assertThatThrownBy(() -> underTest.getCommentsAsPage(postId, pageable))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exists".formatted(postId));
 

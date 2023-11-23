@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.auth.AuthorizationService;
 import com.example.blog.category.Category;
 import com.example.blog.category.CategoryRepository;
 import com.example.blog.exception.CustomAuthorizationException;
@@ -12,6 +13,7 @@ import com.example.blog.tag.Tag;
 import com.example.blog.tag.TagRepository;
 import com.example.blog.user.User;
 import com.example.blog.user.UserRepository;
+import com.example.blog.user.UserRetrievalService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,16 +29,19 @@ public class PostService {
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
+    private final UserRetrievalService userRetrievalService;
+    private final AuthorizationService authorizationService;
 
     public PostService(PostRepository postRepository,
                        TagRepository tagRepository,
                        CategoryRepository categoryRepository,
-                       UserRepository userRepository) {
+                       UserRetrievalService userRetrievalService,
+                       AuthorizationService authorizationService) {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
         this.categoryRepository = categoryRepository;
-        this.userRepository = userRepository;
+        this.userRetrievalService = userRetrievalService;
+        this.authorizationService = authorizationService;
     }
 
     public Page<Post> getPostsAsPage(Pageable pageable) {
@@ -62,7 +67,7 @@ public class PostService {
     @Transactional
     public Post save(PostRequest request, UserPrincipal currentUser) {
         validatePostRequest(request);
-        User user = getUserByEmail(currentUser.getEmail());
+        User user = getUser(currentUser);
         Category category = getCategoryById(request.getCategoryId());
         Set<Tag> tags = getOrCreateTags(request.getTags());
         Post post = buildPost(request, category, tags, user);
@@ -72,23 +77,20 @@ public class PostService {
 
     @Transactional
     public Post update(Long id, PostRequest request, UserPrincipal currentUser) {
-        Post existingPost = getPostById(id);
+        Post post = getPostById(id);
         Category category = getCategoryById(request.getCategoryId());
 
-        if (titleAlreadyTaken(id, request.getTitle())) {
-            throw new RequestValidationException("Title [%s] already taken".formatted(request.getTitle()));
-        }
-
-        hasAuthorizationForUpdateOrDeletePost(existingPost, currentUser);
+        validateTitle(id, request.getTitle());
+        hasAuthorizationForUpdateOrDeletePost(post, currentUser);
 
         Set<Tag> tags = getOrCreateTags(request.getTags());
 
-        existingPost.setTitle(request.getTitle());
-        existingPost.setCategory(category);
-        existingPost.setBody(request.getBody());
-        existingPost.setTags(tags);
+        post.setTitle(request.getTitle());
+        post.setCategory(category);
+        post.setBody(request.getBody());
+        post.setTags(tags);
 
-        return postRepository.save(existingPost);
+        return postRepository.save(post);
     }
 
     public void delete(Long id, UserPrincipal currentUser) {
@@ -98,11 +100,14 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    private void hasAuthorizationForUpdateOrDeletePost(Post post, UserPrincipal currentUser) {
-        if (!currentUser.getId().equals(post.getUser().getId()) ||
-                !currentUser.getAuthorities().contains(new SimpleGrantedAuthority(AppRoles.ROLE_ADMIN.toString()))) {
-            throw new CustomAuthorizationException("You don't have permission to make this request");
+    private void validateTitle(Long id, String title) {
+        if (titleAlreadyTaken(id, title)) {
+            throw new RequestValidationException("Title [%s] already taken".formatted(title));
         }
+    }
+
+    private void hasAuthorizationForUpdateOrDeletePost(Post post, UserPrincipal currentUser) {
+        authorizationService.hasAuthorizationForUpdateOrDeleteEntity(post, currentUser);
     }
 
     private static Post buildPost(PostRequest request, Category category, Set<Tag> tags, User user) {
@@ -120,9 +125,8 @@ public class PostService {
                 .isPresent();
     }
 
-    private User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not logged in"));
+    private User getUser(UserPrincipal currentUser) {
+        return userRetrievalService.getUserByEmail(currentUser.getEmail());
     }
 
     private Tag getTagById(Long tagId) {

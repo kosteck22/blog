@@ -38,21 +38,21 @@ public class SecurityFilterChainConfig {
                                 "/api/v1/categories",
                                 "/api/v1/tags",
                                 "/api/v1/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/posts/*/comments",
+                                "/api/v1/posts").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/v1/categories/*",
-                                "/api/v1/tags").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,
-                                "/api/v1/categories/*",
-                                "/api/v1/tags").hasRole("ADMIN")
+                                "/api/v1/tags/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/v1/posts/*/comments/*",
                                 "/api/v1/posts/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE,
-                                "/api/v1/posts/*/comments",
+                                "/api/v1/categories/*",
+                                "/api/v1/tags/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/v1/posts/*/comments/*",
                                 "/api/v1/posts/*").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/v1/posts/*/comments",
-                                "/api/v1/posts").hasAnyRole("USER")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

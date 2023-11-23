@@ -73,7 +73,7 @@ class CommentControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Comment> commentPage = new PageImpl<>(comments, pageable, comments.size());
 
-        doReturn(commentPage).when(commentService).fetchCommentDataForPostAsPage(any(Long.class), any(Pageable.class));
+        doReturn(commentPage).when(commentService).getCommentsAsPage(any(Long.class), any(Pageable.class));
 
         //when
         //then
@@ -105,7 +105,7 @@ class CommentControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Comment> commentPage = new PageImpl<>(comments, pageable, comments.size());
 
-        when(commentService.fetchCommentDataForPostAsPage(any(), any())).thenReturn(commentPage);
+        when(commentService.getCommentsAsPage(any(), any())).thenReturn(commentPage);
 
         //when
         //then
@@ -124,7 +124,7 @@ class CommentControllerTest {
         //given
         Long postId = 1L;
 
-        when(commentService.fetchCommentDataForPostAsPage(any(), any())).thenThrow(ResourceNotFoundException.class);
+        when(commentService.getCommentsAsPage(any(), any())).thenThrow(ResourceNotFoundException.class);
 
         //when
         //then

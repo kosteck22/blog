@@ -6,6 +6,7 @@ import com.example.blog.category.Category;
 import com.example.blog.comment.Comment;
 import com.example.blog.tag.Tag;
 import com.example.blog.user.User;
+import com.example.blog.user.UserOwnedEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,7 @@ import java.util.*;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Post extends UserDateAudit {
+public class Post extends UserDateAudit implements UserOwnedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

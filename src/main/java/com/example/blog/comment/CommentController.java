@@ -1,5 +1,7 @@
 package com.example.blog.comment;
 
+import com.example.blog.security.CurrentUser;
+import com.example.blog.security.UserPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +31,7 @@ public class CommentController {
             @PathVariable("postId") Long postId,
             @PageableDefault(size = 5) Pageable pageable
     ) {
-        Page<Comment> commentPage = commentService.fetchCommentDataForPostAsPage(postId, pageable);
+        Page<Comment> commentPage = commentService.getCommentsAsPage(postId, pageable);
 
         if (commentPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
@@ -48,15 +50,17 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<CommentModel> save(@PathVariable("postId") Long postId,
-                                       @Valid @RequestBody CommentRequest request) {
-        Comment comment = commentService.save(postId, request);
-
+                                             @Valid @RequestBody CommentRequest request,
+                                             @CurrentUser UserPrincipal currentUser) {
+        Comment comment = commentService.save(postId, request, currentUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(commentModelAssembler.toModel(comment));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable("postId") Long postId, @PathVariable("id") Long commentId) {
-        commentService.delete(postId, commentId);
+    public ResponseEntity<?> delete(@PathVariable("postId") Long postId,
+                                    @PathVariable("id") Long commentId,
+                                    @CurrentUser UserPrincipal currentUser) {
+        commentService.delete(postId, commentId, currentUser);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
@@ -64,8 +68,9 @@ public class CommentController {
     @PutMapping("{id}")
     public ResponseEntity<CommentModel> update(@PathVariable("postId") Long postId,
                                                @PathVariable("id") Long commentId,
-                                               @Valid @RequestBody CommentRequest request) {
-        Comment comment = commentService.update(postId, commentId, request);
+                                               @Valid @RequestBody CommentRequest request,
+                                               @CurrentUser UserPrincipal currentUser) {
+        Comment comment = commentService.update(postId, commentId, request, currentUser);
 
         return ResponseEntity.ok(commentModelAssembler.toModel(comment));
     }
