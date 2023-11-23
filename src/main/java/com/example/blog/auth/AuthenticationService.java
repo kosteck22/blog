@@ -48,24 +48,12 @@ public class AuthenticationService {
     }
 
     public void registerUser(UserRegistrationRequest signupRequest) {
-        //check if email exist
-        String email = signupRequest.getEmail();
-        if (userRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException("email already taken");
-        }
-
-        //check if username exist
-        String username = signupRequest.getUsername();
-        if (userRepository.existsByUsername(username)) {
-            throw new DuplicateResourceException("username already taken");
-        }
-
-        Role role = roleRepository.findByName(AppRoles.ROLE_USER)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        validateUserRegistrationRequest(signupRequest);
+        Role role = getUserRole();
 
         User user = User.builder()
-                .email(email)
-                .username(username)
+                .email(signupRequest.getEmail())
+                .username(signupRequest.getUsername())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
                 .phone(signupRequest.getPhone())
                 .firstName(signupRequest.getFirstName())
@@ -87,5 +75,24 @@ public class AuthenticationService {
             LOGGER.error(ex.getMessage());
             throw new InvalidUsernameOrPasswordException("Invalid username/password supplied");
         }
+    }
+
+    private void validateUserRegistrationRequest(UserRegistrationRequest signupRequest) {
+        //check if email exist
+        String email = signupRequest.getEmail();
+        if (userRepository.existsByEmail(email)) {
+            throw new DuplicateResourceException("email already taken");
+        }
+
+        //check if username exist
+        String username = signupRequest.getUsername();
+        if (userRepository.existsByUsername(username)) {
+            throw new DuplicateResourceException("username already taken");
+        }
+    }
+
+    private Role getUserRole() {
+        return roleRepository.findByName(AppRoles.ROLE_USER)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
     }
 }

@@ -2,6 +2,7 @@ package com.example.blog.auth;
 
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @NoArgsConstructor
@@ -9,9 +10,9 @@ import lombok.*;
 @Getter @Setter
 @Builder
 public class AuthenticationRequest {
-    @NotBlank
+    @NotNull
     private String username;
 
-    @NotBlank
+    @NotNull
     private String password;
 }

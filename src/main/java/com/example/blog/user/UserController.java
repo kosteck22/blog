@@ -3,8 +3,10 @@ package com.example.blog.user;
 import com.example.blog.security.CurrentUser;
 import com.example.blog.security.UserPrincipal;
 import jakarta.validation.Valid;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -63,5 +65,11 @@ public class UserController {
         User user = userService.getByUsername(username);
 
         return ResponseEntity.ok(user);
+    }
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        StringTrimmerEditor editor = new StringTrimmerEditor(true);
+        binder.registerCustomEditor(String.class, editor);
     }
 }
