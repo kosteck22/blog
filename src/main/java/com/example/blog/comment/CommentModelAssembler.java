@@ -1,14 +1,11 @@
 package com.example.blog.comment;
 
+import com.example.blog.entity.Comment;
 import com.example.blog.post.PostController;
+import com.example.blog.user.UserController;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-
-import java.sql.Time;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.TimeZone;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -27,15 +24,12 @@ public class CommentModelAssembler extends RepresentationModelAssemblerSupport<C
     public CommentModel toModel(@NonNull Comment comment) {
         CommentModel commentModel = mapper.apply(comment);
 
-        commentModel.add(
-                linkTo(methodOn(CommentController.class)
-                        .get(comment.getPost().getId(), comment.getId()))
-                .withSelfRel());
-
-        commentModel.add(
-                linkTo(methodOn(PostController.class)
-                        .getById(comment.getPost().getId()))
-                .withRel("post"));
+        commentModel
+                .add(linkTo(methodOn(CommentController.class).get(comment.getPost().getId(), comment.getId()))
+                        .withSelfRel())
+                .add(linkTo(methodOn(PostController.class).getById(comment.getPost().getId()))
+                        .withRel("post"))
+                .add(linkTo(methodOn(UserController.class).getUser(comment.getUser().getId())).withRel("user"));
 
 
         return commentModel;

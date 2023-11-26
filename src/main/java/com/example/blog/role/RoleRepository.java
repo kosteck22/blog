@@ -1,8 +1,8 @@
 package com.example.blog.role;
 
+import com.example.blog.entity.Role;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import java.util.List;
 import java.util.Optional;
 
 @NoRepositoryBean

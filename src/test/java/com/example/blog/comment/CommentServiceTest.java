@@ -1,8 +1,9 @@
 package com.example.blog.comment;
 
+import com.example.blog.entity.Comment;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
-import com.example.blog.post.Post;
+import com.example.blog.entity.Post;
 import com.example.blog.post.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

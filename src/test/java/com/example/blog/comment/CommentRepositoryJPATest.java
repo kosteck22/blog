@@ -1,18 +1,14 @@
 package com.example.blog.comment;
 
-import com.example.blog.post.Post;
-import org.assertj.core.api.AbstractStringAssert;
-import org.junit.jupiter.api.BeforeEach;
+import com.example.blog.entity.Comment;
+import com.example.blog.entity.Post;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.Rollback;
 
 import java.util.Optional;
 

@@ -1,8 +1,6 @@
-package com.example.blog.tag;
+package com.example.blog.entity;
 
-import com.example.blog.audit.DateAudit;
 import com.example.blog.audit.UserDateAudit;
-import com.example.blog.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 

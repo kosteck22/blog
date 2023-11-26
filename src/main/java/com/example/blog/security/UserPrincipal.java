@@ -1,11 +1,7 @@
 package com.example.blog.security;
 
-import com.example.blog.role.Role;
-import com.example.blog.user.User;
-import lombok.AllArgsConstructor;
+import com.example.blog.entity.Role;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

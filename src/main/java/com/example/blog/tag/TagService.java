@@ -1,8 +1,9 @@
 package com.example.blog.tag;
 
+import com.example.blog.entity.Tag;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.ResourceNotFoundException;
-import com.example.blog.post.Post;
+import com.example.blog.entity.Post;
 import com.example.blog.post.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

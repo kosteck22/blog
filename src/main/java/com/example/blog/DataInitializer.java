@@ -1,7 +1,5 @@
 package com.example.blog;
 
-import com.example.blog.role.AppRoles;
-import com.example.blog.role.Role;
 import com.example.blog.role.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

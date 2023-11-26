@@ -1,23 +1,20 @@
 package com.example.blog.post;
 
 import com.example.blog.auth.AuthorizationService;
-import com.example.blog.category.Category;
+import com.example.blog.entity.Category;
 import com.example.blog.category.CategoryRepository;
-import com.example.blog.exception.CustomAuthorizationException;
+import com.example.blog.entity.Post;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
-import com.example.blog.role.AppRoles;
 import com.example.blog.security.UserPrincipal;
-import com.example.blog.tag.Tag;
+import com.example.blog.entity.Tag;
 import com.example.blog.tag.TagRepository;
-import com.example.blog.user.User;
-import com.example.blog.user.UserRepository;
+import com.example.blog.entity.User;
 import com.example.blog.user.UserRetrievalService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

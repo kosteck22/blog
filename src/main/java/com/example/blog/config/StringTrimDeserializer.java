@@ -1,6 +1,5 @@
 package com.example.blog.config;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,7 +17,7 @@ public class StringTrimDeserializer extends StdDeserializer<String> {
     }
 
     @Override
-    public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JacksonException {
+    public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         JsonNode node = jp.getCodec().readTree(jp);
         if (node.isTextual()) {
             return node.textValue().trim();

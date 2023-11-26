@@ -1,5 +1,6 @@
 package com.example.blog.post;
 
+import com.example.blog.entity.Post;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;

@@ -3,6 +3,7 @@ package com.example.blog.post;
 import com.example.blog.DTOMapper;
 import com.example.blog.category.CategoryMapper;
 import com.example.blog.category.CategoryModel;
+import com.example.blog.entity.Post;
 import org.springframework.stereotype.Component;
 
 @Component

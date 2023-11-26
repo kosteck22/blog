@@ -4,10 +4,10 @@ import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.InvalidUsernameOrPasswordException;
 import com.example.blog.exception.ResourceNotFoundException;
 import com.example.blog.role.AppRoles;
-import com.example.blog.role.Role;
+import com.example.blog.entity.Role;
 import com.example.blog.role.RoleRepository;
 import com.example.blog.security.JwtTokenProvider;
-import com.example.blog.user.User;
+import com.example.blog.entity.User;
 import com.example.blog.user.UserRegistrationRequest;
 import com.example.blog.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +20,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @Slf4j

@@ -1,12 +1,13 @@
 package com.example.blog.comment;
 
 import com.example.blog.auth.AuthorizationService;
+import com.example.blog.entity.Comment;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
-import com.example.blog.post.Post;
+import com.example.blog.entity.Post;
 import com.example.blog.post.PostRepository;
 import com.example.blog.security.UserPrincipal;
-import com.example.blog.user.User;
+import com.example.blog.entity.User;
 import com.example.blog.user.UserRetrievalService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -31,11 +32,18 @@ public class CommentService {
     }
 
     public Page<Comment> getCommentsAsPage(Long postId, Pageable pageable) {
-        if (!postRepository.existsById(postId)) {
-            throw new ResourceNotFoundException("Post with id [%d] does not exists".formatted(postId));
-        }
+        checkIfPostWithGivenIdExists(postId);
 
         return commentRepository.findAllInPost(postId, pageable);
+    }
+
+    public Comment getById(Long postId, Long commentId) {
+        Post post = getPostById(postId);
+        Comment comment = getCommentById(commentId);
+
+        commentBelongToPost(postId, comment, post);
+
+        return comment;
     }
 
     @Transactional
@@ -57,7 +65,7 @@ public class CommentService {
         Comment comment = getCommentById(commentId);
 
         commentBelongToPost(postId, comment, post);
-        authorizationService.hasAuthorizationForUpdateOrDeleteEntity(comment, currentUser);
+        hasAuthorizationForUpdateOrDeleteEntity(comment, currentUser);
 
         comment.setBody(request.getBody());
 
@@ -69,18 +77,15 @@ public class CommentService {
         Post post = getPostById(postId);
         Comment comment = getCommentById(commentId);
         commentBelongToPost(postId, comment, post);
-        authorizationService.hasAuthorizationForUpdateOrDeleteEntity(comment, currentUser);
+        hasAuthorizationForUpdateOrDeleteEntity(comment, currentUser);
 
         commentRepository.delete(comment);
     }
 
-    public Comment getById(Long postId, Long commentId) {
-        Post post = getPostById(postId);
-        Comment comment = getCommentById(commentId);
-
-        commentBelongToPost(postId, comment, post);
-
-        return comment;
+    private void checkIfPostWithGivenIdExists(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new ResourceNotFoundException("Post with id [%d] does not exists".formatted(postId));
+        }
     }
 
     private User getUser(UserPrincipal currentUser) {
@@ -105,5 +110,9 @@ public class CommentService {
 
     private boolean commentDoesNotBelongToPost(Comment comment, Post post) {
         return !post.getId().equals(comment.getPost().getId());
+    }
+
+    private void hasAuthorizationForUpdateOrDeleteEntity(Comment comment, UserPrincipal currentUser) {
+        authorizationService.hasAuthorizationForUpdateOrDeleteEntity(comment, currentUser);
     }
 }

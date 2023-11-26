@@ -1,5 +1,6 @@
 package com.example.blog.comment;
 
+import com.example.blog.entity.Comment;
 import com.example.blog.security.CurrentUser;
 import com.example.blog.security.UserPrincipal;
 import jakarta.validation.Valid;

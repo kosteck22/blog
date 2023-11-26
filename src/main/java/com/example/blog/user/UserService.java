@@ -1,10 +1,15 @@
 package com.example.blog.user;
 
+import com.example.blog.entity.Comment;
+import com.example.blog.comment.CommentRepository;
+import com.example.blog.entity.User;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.ResourceNotFoundException;
 import com.example.blog.role.AppRoles;
-import com.example.blog.role.Role;
+import com.example.blog.entity.Role;
 import com.example.blog.role.RoleRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +20,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final CommentRepository commentRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       RoleRepository roleRepository,
+                       CommentRepository commentRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.commentRepository = commentRepository;
     }
 
     public User getById(Long id) {
@@ -27,12 +37,8 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("user with id [%d] not found".formatted(id)));
     }
 
-    public User addUser(UserRegistrationRequest userRegistrationRequest) {
-        validateUserRegistrationRequest(userRegistrationRequest);
-        Role userRole = getUserRole();
-        User user = buildUser(userRegistrationRequest, userRole);
-
-        return userRepository.save(user);
+    public Page<Comment> getCommentsForCurrentUser(Long userId, Pageable pageable) {
+        return commentRepository.findAllInUser(userId, pageable);
     }
 
     public User getByEmail(String email) {
@@ -45,6 +51,14 @@ public class UserService {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "user with username [%s] doesn't exists".formatted(username)));
+    }
+
+    public User addUser(UserRegistrationRequest userRegistrationRequest) {
+        validateUserRegistrationRequest(userRegistrationRequest);
+        Role userRole = getUserRole();
+        User user = buildUser(userRegistrationRequest, userRole);
+
+        return userRepository.save(user);
     }
 
     public User addAdminRole(Long userId) {

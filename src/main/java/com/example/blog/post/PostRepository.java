@@ -1,15 +1,13 @@
 package com.example.blog.post;
 
-import com.example.blog.category.Category;
-import com.example.blog.tag.Tag;
-import com.example.blog.user.User;
+import com.example.blog.entity.Post;
+import com.example.blog.entity.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @NoRepositoryBean
 public interface PostRepository {

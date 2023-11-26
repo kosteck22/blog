@@ -1,6 +1,7 @@
 package com.example.blog.comment;
 
 import com.example.blog.DTOMapper;
+import com.example.blog.entity.Comment;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

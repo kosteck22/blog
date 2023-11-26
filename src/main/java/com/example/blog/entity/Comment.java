@@ -1,14 +1,9 @@
-package com.example.blog.comment;
+package com.example.blog.entity;
 
-import com.example.blog.audit.DateAudit;
 import com.example.blog.audit.UserDateAudit;
-import com.example.blog.post.Post;
-import com.example.blog.user.User;
 import com.example.blog.user.UserOwnedEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.Objects;
 
 @Entity
 @Table(name = "comments")

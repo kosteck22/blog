@@ -1,9 +1,9 @@
-package com.example.blog.user;
+package com.example.blog.entity;
 
 import com.example.blog.audit.DateAudit;
-import com.example.blog.comment.Comment;
-import com.example.blog.post.Post;
-import com.example.blog.role.Role;
+import com.example.blog.entity.Comment;
+import com.example.blog.entity.Post;
+import com.example.blog.entity.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,7 +39,7 @@ public class User extends DateAudit {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),

@@ -1,6 +1,7 @@
 package com.example.blog.tag;
 
 import com.example.blog.DTOMapper;
+import com.example.blog.entity.Tag;
 import org.springframework.stereotype.Component;
 
 @Component

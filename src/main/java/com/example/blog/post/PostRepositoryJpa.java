@@ -1,8 +1,7 @@
 package com.example.blog.post;
 
-import com.example.blog.category.Category;
-import com.example.blog.tag.Tag;
-import com.example.blog.user.User;
+import com.example.blog.entity.Post;
+import com.example.blog.entity.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,7 +1,8 @@
 package com.example.blog.comment;
 
+import com.example.blog.entity.Comment;
 import com.example.blog.exception.ResourceNotFoundException;
-import com.example.blog.post.Post;
+import com.example.blog.entity.Post;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

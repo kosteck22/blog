@@ -1,5 +1,6 @@
 package com.example.blog.user;
 
+import com.example.blog.entity.User;
 import com.example.blog.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
