@@ -27,14 +27,14 @@ public class Post extends UserDateAudit implements UserOwnedEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "post_tag",
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
@@ -42,7 +42,7 @@ public class Post extends UserDateAudit implements UserOwnedEntity {
     private Set<Tag> tags = new HashSet<>();
 
     public Set<Tag> getTags() {
-        return tags == null ? tags = new HashSet<>() : tags;
+        return this.tags == null ? this.tags = new HashSet<>() : this.tags;
     }
 
     public List<Comment> getComments() {
@@ -64,11 +64,11 @@ public class Post extends UserDateAudit implements UserOwnedEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
-        return Objects.equals(id, post.id);
+        return Objects.equals(id, post.id) && Objects.equals(title, post.title);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, title);
     }
 }

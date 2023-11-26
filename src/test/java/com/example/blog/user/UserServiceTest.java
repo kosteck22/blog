@@ -25,7 +25,7 @@ class UserServiceTest {
 
     @BeforeEach
     public void setUp() {
-        underTest = new UserService(userRepository, null, null);
+        underTest = new UserService(userRepository, null, null, null);
     }
 
     @Test

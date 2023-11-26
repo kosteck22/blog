@@ -12,6 +12,7 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface PostRepository {
     Post save(Post post);
+    <S extends Post> List<S> saveAll(Iterable<S> entities);
     Page<Post> findAll(Pageable pageable);
     Page<Post> findByTagsIn(List<Tag> tags, Pageable pageable);
     Page<Post> findByCategoriesIn(List<Long> categoriesIds, Pageable pageable);

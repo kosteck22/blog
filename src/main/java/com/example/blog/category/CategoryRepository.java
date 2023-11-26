@@ -15,6 +15,7 @@ public interface CategoryRepository {
     Optional<Category> findById(Long id);
     Optional<Category> findByName(String name);
     Category save(Category category);
+    <S extends Category> List<S> saveAll(Iterable<S> entities);
     void delete(Category category);
     boolean existsByName(String name);
 }

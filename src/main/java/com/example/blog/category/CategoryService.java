@@ -30,21 +30,12 @@ public class CategoryService {
 
     public Category save(CategoryRequest categoryRequest) {
         String name = categoryRequest.getName();
-
-        if (categoryRepository.existsByName(name)) {
-            throw new DuplicateResourceException("Category with name [%s] already exists".formatted(name));
-        }
+        validateName(name);
 
         Category category = Category.builder()
                 .name(name).build();
 
         return categoryRepository.save(category);
-    }
-
-    public void delete(Long categoryId) {
-        Category category = get(categoryId);
-
-        categoryRepository.delete(category);
     }
 
     public Category update(Long categoryId, CategoryRequest request) {
@@ -57,6 +48,12 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    public void delete(Long categoryId) {
+        Category category = get(categoryId);
+
+        categoryRepository.delete(category);
+    }
+
     private void validateName(Long categoryId, String requestName) {
         if (nameAlreadyTaken(categoryId, requestName)) {
             throw new RequestValidationException("Name [%s] already taken".formatted(requestName));
@@ -67,5 +64,11 @@ public class CategoryService {
         return categoryRepository.findByName(name)
                 .filter(value -> !value.getId().equals(categoryId))
                 .isPresent();
+    }
+
+    private void validateName(String name) {
+        if (categoryRepository.existsByName(name)) {
+            throw new DuplicateResourceException("Category with name [%s] already exists".formatted(name));
+        }
     }
 }

@@ -25,13 +25,11 @@ public class CategoryModelAssembler extends RepresentationModelAssemblerSupport<
                 .id(id)
                 .name(entity.getName()).build();
 
-        model.add(linkTo(methodOn(CategoryController.class)
-                .get(id))
-                .withSelfRel());
-
-        model.add(linkTo(methodOn(PostController.class)
-                .getPostsByCategory(id, null))
-                .withRel("posts"));
+        model
+                .add(linkTo(methodOn(CategoryController.class).get(id))
+                        .withSelfRel())
+                .add(linkTo(methodOn(PostController.class).getPostsByCategory(id, null))
+                        .withRel("posts"));
 
         return model;
     }
