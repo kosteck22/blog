@@ -39,7 +39,7 @@ public class User extends DateAudit {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -47,10 +47,10 @@ public class User extends DateAudit {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
     public Set<Role> getRoles() {

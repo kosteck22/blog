@@ -27,11 +27,11 @@ public class Post extends UserDateAudit implements UserOwnedEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
     @ManyToMany

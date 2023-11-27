@@ -88,8 +88,8 @@ public class PostService {
         Set<Tag> tags = getOrCreateTags(request.getTags());
 
         post.setTitle(request.getTitle());
-        post.setCategory(category);
         post.setBody(request.getBody());
+        post.setCategory(category);
         post.setTags(tags);
 
         return postRepository.save(post);

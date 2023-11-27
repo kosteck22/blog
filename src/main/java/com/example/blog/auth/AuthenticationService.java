@@ -21,6 +21,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Service
 @Slf4j
 public class AuthenticationService {
@@ -47,7 +52,7 @@ public class AuthenticationService {
 
     public void registerUser(UserRegistrationRequest signupRequest) {
         validateUserRegistrationRequest(signupRequest);
-        Role role = getUserRole();
+        Set<Role> roles = getRolesForUser();
 
         User user = User.builder()
                 .email(signupRequest.getEmail())
@@ -57,7 +62,7 @@ public class AuthenticationService {
                 .firstName(signupRequest.getFirstName())
                 .lastName(signupRequest.getLastName()).build();
 
-        user.addRole(role);
+        user.setRoles(roles);
 
         userRepository.save(user);
     }
@@ -89,8 +94,15 @@ public class AuthenticationService {
         }
     }
 
-    private Role getUserRole() {
-        return roleRepository.findByName(AppRoles.ROLE_USER)
+    private Set<Role> getRolesForUser() {
+        if (userRepository.count() == 0) {
+            List<Role> roles = roleRepository.findAll();
+            return new HashSet<>(roles);
+        }
+
+        Role userRole = roleRepository.findByName(AppRoles.ROLE_USER)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        return Collections.singleton(userRole);
     }
 }

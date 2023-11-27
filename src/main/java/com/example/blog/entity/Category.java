@@ -23,7 +23,7 @@ public class Category extends UserDateAudit {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
     public List<Post> getPosts() {
