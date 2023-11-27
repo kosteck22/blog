@@ -18,4 +18,5 @@ public interface TagRepository {
     Page<Tag> findByPostsIn(List<Post> posts, Pageable pageable);
     boolean existsByName(String name);
     void delete(Tag tag);
+    List<Tag> findOrphanedTags();
 }

@@ -68,7 +68,9 @@ public class PostService {
 
     @Transactional
     public Post save(PostRequest request, UserPrincipal currentUser) {
+        // Checking if title is unique
         validatePostRequest(request);
+
         User user = getUser(currentUser);
         Category category = getCategoryById(request.getCategoryId());
         Set<Tag> tags = getOrCreateTags(request.getTags());
@@ -82,8 +84,16 @@ public class PostService {
         Post post = getPostById(id);
         Category category = getCategoryById(request.getCategoryId());
 
+        // Checking uniqueness of title
         validateTitle(id, request.getTitle());
+
+        // Checking if logged user can update this post
         hasAuthorizationForUpdateOrDeletePost(post, currentUser);
+
+        // Remove the post from existing tags
+        for (Tag tag : post.getTags()) {
+            tag.getPosts().remove(post);
+        }
 
         Set<Tag> tags = getOrCreateTags(request.getTags());
 
@@ -92,7 +102,12 @@ public class PostService {
         post.setCategory(category);
         post.setTags(tags);
 
-        return postRepository.save(post);
+       postRepository.save(post);
+
+        // Cleanup orphaned tags
+        cleanupOrphanedTags();
+
+        return post;
     }
 
     public void delete(Long id, UserPrincipal currentUser) {
@@ -100,6 +115,16 @@ public class PostService {
         hasAuthorizationForUpdateOrDeletePost(post, currentUser);
 
         postRepository.delete(post);
+
+        // Cleanup orphaned tags
+        cleanupOrphanedTags();
+    }
+
+    private void cleanupOrphanedTags() {
+        List<Tag> orphanedTags = tagRepository.findOrphanedTags();
+        for (Tag orphanedTag : orphanedTags) {
+            tagRepository.delete(orphanedTag);
+        }
     }
 
     private void validateTitle(Long id, String title) {
