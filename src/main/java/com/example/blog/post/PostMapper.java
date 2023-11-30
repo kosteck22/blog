@@ -2,12 +2,12 @@ package com.example.blog.post;
 
 import com.example.blog.DTOMapper;
 import com.example.blog.category.CategoryMapper;
-import com.example.blog.category.CategoryModel;
+import com.example.blog.category.CategoryResponse;
 import com.example.blog.entity.Post;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PostMapper implements DTOMapper<Post, PostModel> {
+public class PostMapper implements DTOMapper<Post, PostResponse> {
     private final CategoryMapper categoryMapper;
 
     public PostMapper(CategoryMapper categoryMapper) {
@@ -15,10 +15,10 @@ public class PostMapper implements DTOMapper<Post, PostModel> {
     }
 
     @Override
-    public PostModel apply(Post post) {
-        CategoryModel category = categoryMapper.apply(post.getCategory());
+    public PostResponse apply(Post post) {
+        CategoryResponse category = categoryMapper.apply(post.getCategory());
 
-        return PostModel.builder()
+        return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .body(post.getBody())

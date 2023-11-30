@@ -2,10 +2,8 @@ package com.example.blog.auth;
 
 import com.example.blog.user.UserRegistrationRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 

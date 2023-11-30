@@ -28,7 +28,7 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<CommentModel>> getCommentsForPostAsPage(
+    public ResponseEntity<PagedModel<CommentResponse>> getCommentsForPostAsPage(
             @PathVariable("postId") Long postId,
             @PageableDefault(size = 5) Pageable pageable
     ) {
@@ -42,17 +42,17 @@ public class CommentController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<CommentModel> get(@PathVariable("postId") Long postId,
-                                            @PathVariable("id") Long commentId) {
+    public ResponseEntity<CommentResponse> get(@PathVariable("postId") Long postId,
+                                               @PathVariable("id") Long commentId) {
         Comment comment = commentService.getById(postId, commentId);
 
         return ResponseEntity.ok(commentModelAssembler.toModel(comment));
     }
 
     @PostMapping
-    public ResponseEntity<CommentModel> save(@PathVariable("postId") Long postId,
-                                             @Valid @RequestBody CommentRequest request,
-                                             @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<CommentResponse> save(@PathVariable("postId") Long postId,
+                                                @Valid @RequestBody CommentRequest request,
+                                                @CurrentUser UserPrincipal currentUser) {
         Comment comment = commentService.save(postId, request, currentUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(commentModelAssembler.toModel(comment));
     }
@@ -67,10 +67,10 @@ public class CommentController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CommentModel> update(@PathVariable("postId") Long postId,
-                                               @PathVariable("id") Long commentId,
-                                               @Valid @RequestBody CommentRequest request,
-                                               @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<CommentResponse> update(@PathVariable("postId") Long postId,
+                                                  @PathVariable("id") Long commentId,
+                                                  @Valid @RequestBody CommentRequest request,
+                                                  @CurrentUser UserPrincipal currentUser) {
         Comment comment = commentService.update(postId, commentId, request, currentUser);
 
         return ResponseEntity.ok(commentModelAssembler.toModel(comment));

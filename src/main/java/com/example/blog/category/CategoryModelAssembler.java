@@ -10,18 +10,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class CategoryModelAssembler extends RepresentationModelAssemblerSupport<Category, CategoryModel> {
+public class CategoryModelAssembler extends RepresentationModelAssemblerSupport<Category, CategoryResponse> {
 
     public CategoryModelAssembler() {
-        super(CategoryController.class, CategoryModel.class);
+        super(CategoryController.class, CategoryResponse.class);
     }
 
     @Override
     @NonNull
-    public CategoryModel toModel(@NonNull Category entity) {
+    public CategoryResponse toModel(@NonNull Category entity) {
         Long id = entity.getId();
 
-        CategoryModel model = CategoryModel.builder()
+        CategoryResponse model = CategoryResponse.builder()
                 .id(id)
                 .name(entity.getName()).build();
 

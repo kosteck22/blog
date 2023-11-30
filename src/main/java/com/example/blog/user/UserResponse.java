@@ -1,5 +1,6 @@
 package com.example.blog.user;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +10,7 @@ import org.springframework.hateoas.server.core.Relation;
 @Getter @Setter
 @Builder
 @Relation(itemRelation = "user", collectionRelation = "users")
-public class UserModel extends RepresentationModel<UserModel> {
+public class UserResponse extends RepresentationModel<UserResponse> {
     private Long id;
     private String email;
     private String username;

@@ -5,11 +5,11 @@ import com.example.blog.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapper implements DTOMapper<User, UserModel> {
+public class UserMapper implements DTOMapper<User, UserResponse> {
     @Override
-    public UserModel apply(User user) {
+    public UserResponse apply(User user) {
 
-        return UserModel.builder()
+        return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())

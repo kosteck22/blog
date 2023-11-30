@@ -9,13 +9,13 @@ import java.time.LocalDateTime;
 import java.util.TimeZone;
 
 @Component
-public class CommentMapper implements DTOMapper<Comment, CommentModel> {
+public class CommentMapper implements DTOMapper<Comment, CommentResponse> {
     @Override
-    public CommentModel apply(Comment comment) {
+    public CommentResponse apply(Comment comment) {
         LocalDateTime createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(comment.getCreatedDate()),
                 TimeZone.getDefault().toZoneId());
 
-        return  CommentModel.builder()
+        return  CommentResponse.builder()
                     .id(comment.getId())
                     .body(comment.getBody())
                     .createdDate(createdAt).build();

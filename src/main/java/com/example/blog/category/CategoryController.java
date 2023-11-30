@@ -28,7 +28,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<CategoryModel>> getCategoriesAsPage(@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<PagedModel<CategoryResponse>> getCategoriesAsPage(@PageableDefault(size = 10) Pageable pageable) {
         Page<Category> categoryPage = categoryService.getCategoriesAsPage(pageable);
 
         if (categoryPage.isEmpty()) {
@@ -39,22 +39,22 @@ public class CategoryController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<CategoryModel> get(@PathVariable("id") Long categoryId) {
+    public ResponseEntity<CategoryResponse> get(@PathVariable("id") Long categoryId) {
         Category category = categoryService.get(categoryId);
 
         return ResponseEntity.ok(categoryModelAssembler.toModel(category));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryModel> save(@Valid @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> save(@Valid @RequestBody CategoryRequest categoryRequest) {
         Category category = categoryService.save(categoryRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryModelAssembler.toModel(category));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CategoryModel> update(@PathVariable("id") Long categoryId,
-                                           @Valid @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> update(@PathVariable("id") Long categoryId,
+                                                   @Valid @RequestBody CategoryRequest categoryRequest) {
         Category category = categoryService.update(categoryId, categoryRequest);
 
         return ResponseEntity.ok(categoryModelAssembler.toModel(category));

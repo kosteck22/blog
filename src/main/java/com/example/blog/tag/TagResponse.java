@@ -8,7 +8,7 @@ import org.springframework.hateoas.server.core.Relation;
 @AllArgsConstructor @NoArgsConstructor
 @Builder
 @Relation(itemRelation = "tag", collectionRelation = "tags")
-public class TagModel extends RepresentationModel<TagModel> {
+public class TagResponse extends RepresentationModel<TagResponse> {
     private Long id;
     private String name;
 }

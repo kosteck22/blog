@@ -10,17 +10,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class UserModelAssembler extends RepresentationModelAssemblerSupport<User, UserModel> {
+public class UserModelAssembler extends RepresentationModelAssemblerSupport<User, UserResponse> {
     private final UserMapper mapper;
 
     public UserModelAssembler(UserMapper mapper) {
-        super(UserController.class, UserModel.class);
+        super(UserController.class, UserResponse.class);
         this.mapper = mapper;
     }
 
     @Override
-    public UserModel toModel(User entity) {
-        UserModel user = mapper.apply(entity);
+    public UserResponse toModel(User entity) {
+        UserResponse user = mapper.apply(entity);
 
         user
                 .add(linkTo(methodOn(UserController.class).getUser(user.getId())).withSelfRel())

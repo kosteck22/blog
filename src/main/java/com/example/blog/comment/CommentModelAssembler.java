@@ -11,18 +11,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class CommentModelAssembler extends RepresentationModelAssemblerSupport<Comment, CommentModel> {
+public class CommentModelAssembler extends RepresentationModelAssemblerSupport<Comment, CommentResponse> {
     private final CommentMapper mapper;
 
     public CommentModelAssembler(CommentMapper mapper) {
-        super(CommentController.class, CommentModel.class);
+        super(CommentController.class, CommentResponse.class);
         this.mapper = mapper;
     }
 
     @Override
     @NonNull
-    public CommentModel toModel(@NonNull Comment comment) {
-        CommentModel commentModel = mapper.apply(comment);
+    public CommentResponse toModel(@NonNull Comment comment) {
+        CommentResponse commentModel = mapper.apply(comment);
 
         commentModel
                 .add(linkTo(methodOn(CommentController.class).get(comment.getPost().getId(), comment.getId()))

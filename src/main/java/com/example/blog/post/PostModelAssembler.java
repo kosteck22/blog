@@ -9,18 +9,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class PostModelAssembler extends RepresentationModelAssemblerSupport<Post, PostModel> {
+public class PostModelAssembler extends RepresentationModelAssemblerSupport<Post, PostResponse> {
     private final PostMapper mapper;
 
     public PostModelAssembler(PostMapper mapper) {
-        super(PostController.class, PostModel.class);
+        super(PostController.class, PostResponse.class);
         this.mapper = mapper;
     }
 
     @Override
     @NonNull
-    public PostModel toModel(@NonNull Post post) {
-        PostModel postModel = mapper.apply(post);
+    public PostResponse toModel(@NonNull Post post) {
+        PostResponse postModel = mapper.apply(post);
 
         postModel.add(
                 linkTo(methodOn(PostController.class)

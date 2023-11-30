@@ -36,7 +36,7 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<PostModel>> getPostsAsPage(@PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<PagedModel<PostResponse>> getPostsAsPage(@PageableDefault(size = 5) Pageable pageable) {
         Page<Post> postPage = postService.getPostsAsPage(pageable);
 
         if (postPage.isEmpty()) {
@@ -59,8 +59,8 @@ public class PostController {
     }
 
     @GetMapping("/tag/{id}")
-    public ResponseEntity<PagedModel<PostModel>> getPostsByTag(@PathVariable("id") Long tagId,
-                                                               @PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<PagedModel<PostResponse>> getPostsByTag(@PathVariable("id") Long tagId,
+                                                                  @PageableDefault(size = 5) Pageable pageable) {
         Page<Post> postPage = postService.getPostsByTagId(tagId, pageable);
 
         if (postPage.isEmpty()) {
@@ -71,8 +71,8 @@ public class PostController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<PagedModel<PostModel>> getPostsByUser(@PathVariable("id") Long userId,
-                                                                @PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<PagedModel<PostResponse>> getPostsByUser(@PathVariable("id") Long userId,
+                                                                   @PageableDefault(size = 5) Pageable pageable) {
         Page<Post> postPage = postService.getPostsByUserId(userId, pageable);
 
         if (postPage.isEmpty()) {
@@ -83,24 +83,24 @@ public class PostController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<PostModel> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<PostResponse> getById(@PathVariable("id") Long id) {
         Post post = postService.getPostById(id);
 
         return ResponseEntity.ok(detailedPostModelAssembler.toModel(post));
     }
 
     @PostMapping
-    public ResponseEntity<PostModel> save(@Valid @RequestBody PostRequest request,
-                                          @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<PostResponse> save(@Valid @RequestBody PostRequest request,
+                                             @CurrentUser UserPrincipal currentUser) {
         Post post = postService.save(request, currentUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(detailedPostModelAssembler.toModel(post));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<PostModel> update(@PathVariable("id") Long id,
-                                            @Valid @RequestBody PostRequest request,
-                                            @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<PostResponse> update(@PathVariable("id") Long id,
+                                               @Valid @RequestBody PostRequest request,
+                                               @CurrentUser UserPrincipal currentUser) {
         Post post = postService.update(id, request, currentUser);
 
         return ResponseEntity.ok(detailedPostModelAssembler.toModel(post));

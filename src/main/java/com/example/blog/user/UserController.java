@@ -1,11 +1,17 @@
 package com.example.blog.user;
 
+import com.example.blog.config.OpenApiConfig;
 import com.example.blog.entity.Comment;
-import com.example.blog.comment.CommentModel;
+import com.example.blog.comment.CommentResponse;
 import com.example.blog.comment.CommentModelAssembler;
 import com.example.blog.entity.User;
+import com.example.blog.exception.ApiError;
 import com.example.blog.security.CurrentUser;
 import com.example.blog.security.UserPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,22 +41,61 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<UserModel> getUser(@PathVariable("id") Long id) {
+    @Operation(
+            description = "Get user info by id",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/hal+json",
+                                    schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_404)
+            }
+    )
+    public ResponseEntity<UserResponse> getUser(@PathVariable("id") Long id) {
         User user = userService.getById(id);
 
         return ResponseEntity.ok(userModelAssembler.toModel(user));
     }
 
     @GetMapping("me")
-    public ResponseEntity<UserModel> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+    @Operation(
+            description = "Logged user information's",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/hal+json",
+                                    schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_401)
+            }
+    )
+    public ResponseEntity<UserResponse> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
         User user = userService.getByEmail(currentUser.getEmail());
 
         return ResponseEntity.ok(userModelAssembler.toModel(user));
     }
 
     @GetMapping("me/comments")
-    public ResponseEntity<PagedModel<CommentModel>> getCommentsForCurrentUser(@CurrentUser UserPrincipal currentUser,
-                                                                              @PageableDefault(size = 5) Pageable pageable) {
+    @Operation(
+            description = "Create new user",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/hal+json",
+                                    schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_401)
+            }
+    )
+    public ResponseEntity<PagedModel<CommentResponse>> getCommentsForCurrentUser(@CurrentUser UserPrincipal currentUser,
+                                                                                 @PageableDefault(size = 5) Pageable pageable) {
         Page<Comment> commentsPage = userService.getCommentsForCurrentUser(currentUser.getId(), pageable);
 
         if (commentsPage.isEmpty()) {
@@ -61,35 +106,107 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserModel> addUser(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
+    @Operation(
+            description = "Create new user",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/hal+json",
+                                    schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_400),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_409),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_404),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_401)
+            }
+    )
+    public ResponseEntity<UserResponse> addUser(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
         User user = userService.addUser(userRegistrationRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userModelAssembler.toModel(user));
     }
 
     @PutMapping("{id}/promote-to-admin")
-    public ResponseEntity<UserModel> addAdminRole(@PathVariable("id") Long userId) {
+    @Operation(
+           description = "Promote the user to the position of admin",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/hal+json",
+                                    schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_404),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_409),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_401)
+            }
+    )
+    public ResponseEntity<UserResponse> addAdminRole(@PathVariable("id") Long userId) {
         User user = userService.addAdminRole(userId);
 
         return ResponseEntity.ok(userModelAssembler.toModel(user));
     }
 
     @PutMapping("{id}/remove-admin-role")
-    public ResponseEntity<UserModel> removeAdminRole(@PathVariable("id") Long userId) {
+    @Operation(
+            description = "Strip user from admin position",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/hal+json",
+                                    schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_404),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_409),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_401)
+            }
+    )
+    public ResponseEntity<UserResponse> removeAdminRole(@PathVariable("id") Long userId) {
         User user = userService.removeAdminRole(userId);
 
         return ResponseEntity.ok(userModelAssembler.toModel(user));
     }
 
     @GetMapping("/identities/email/{email}")
-    public ResponseEntity<UserModel> getUserByEmail(@PathVariable("email") String email) {
+    @Operation(
+            description = "Getting user by email (if response status is 404 it means that email is unique and free to take)",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/hal+json",
+                                    schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_404)
+            }
+    )
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable("email") String email) {
         User user = userService.getByEmail(email);
 
         return ResponseEntity.ok(userModelAssembler.toModel(user));
     }
 
     @GetMapping("/identities/username/{username}")
-    public ResponseEntity<UserModel> getUserByUsername(@PathVariable("username") String username) {
+    @Operation(
+            description = "Getting user by username (if response status is 404 it means that username is unique and free to take)",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/hal+json",
+                                    schema = @Schema(implementation = UserResponse.class))
+                    ),
+                    @ApiResponse(ref = OpenApiConfig.RESPONSE_404)
+            }
+    )
+    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable("username") String username) {
         User user = userService.getByUsername(username);
 
         return ResponseEntity.ok(userModelAssembler.toModel(user));
