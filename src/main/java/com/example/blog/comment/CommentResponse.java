@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @Builder
 @Relation(itemRelation = "comment", collectionRelation = "comments")
-public class CommentModel extends RepresentationModel<CommentModel> {
+public class CommentResponse extends RepresentationModel<CommentResponse> {
     private Long id;
     private String body;
     private LocalDateTime createdDate;

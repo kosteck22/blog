@@ -1,6 +1,6 @@
-package com.example.blog.tag;
+package com.example.blog.entity;
 
-import com.example.blog.post.Post;
+import com.example.blog.audit.UserDateAudit;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,11 +13,11 @@ import java.util.Set;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Tag {
+public class Tag extends UserDateAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String name;

@@ -1,5 +1,6 @@
 package com.example.blog.comment;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -9,6 +10,8 @@ import java.util.Objects;
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class CommentRequest {
+
+    @NotNull
     @Size(min = 10, max = 1024, message = "body size must be between 10 and 1024")
     private String body;
 

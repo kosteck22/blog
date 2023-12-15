@@ -1,6 +1,7 @@
 package com.example.blog.tag;
 
-import com.example.blog.post.Post;
+import com.example.blog.entity.Post;
+import com.example.blog.entity.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.domain.Page;
@@ -17,4 +18,5 @@ public interface TagRepository {
     Page<Tag> findByPostsIn(List<Post> posts, Pageable pageable);
     boolean existsByName(String name);
     void delete(Tag tag);
+    List<Tag> findOrphanedTags();
 }

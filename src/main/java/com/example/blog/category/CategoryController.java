@@ -1,5 +1,7 @@
 package com.example.blog.category;
 
+import com.example.blog.entity.Category;
+import com.example.blog.entity.Post;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,10 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -27,7 +33,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<CategoryModel>> getCategoriesAsPage(@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<PagedModel<CategoryResponse>> getCategoriesAsPage(@PageableDefault(size = 5) Pageable pageable) {
         Page<Category> categoryPage = categoryService.getCategoriesAsPage(pageable);
 
         if (categoryPage.isEmpty()) {
@@ -38,22 +44,22 @@ public class CategoryController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<CategoryModel> get(@PathVariable("id") Long categoryId) {
+    public ResponseEntity<CategoryResponse> get(@PathVariable("id") Long categoryId) {
         Category category = categoryService.get(categoryId);
 
         return ResponseEntity.ok(categoryModelAssembler.toModel(category));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryModel> save(@Valid @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> save(@Valid @RequestBody CategoryRequest categoryRequest) {
         Category category = categoryService.save(categoryRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryModelAssembler.toModel(category));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CategoryModel> update(@PathVariable("id") Long categoryId,
-                                           @Valid @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> update(@PathVariable("id") Long categoryId,
+                                                   @Valid @RequestBody CategoryRequest categoryRequest) {
         Category category = categoryService.update(categoryId, categoryRequest);
 
         return ResponseEntity.ok(categoryModelAssembler.toModel(category));

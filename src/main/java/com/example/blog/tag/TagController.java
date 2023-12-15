@@ -1,5 +1,6 @@
 package com.example.blog.tag;
 
+import com.example.blog.entity.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +26,7 @@ public class TagController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<TagModel>> getTagsAsPage(@PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<PagedModel<TagResponse>> getTagsAsPage(@PageableDefault(size = 5) Pageable pageable) {
         Page<Tag> tagPage = tagService.getTagsAsPage(pageable);
 
         if (tagPage.isEmpty()) {
@@ -36,8 +37,8 @@ public class TagController {
     }
 
     @GetMapping("/post/{id}")
-    public ResponseEntity<PagedModel<TagModel>> getTagsForPost(@PathVariable("id") Long postId,
-                                                          @PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<PagedModel<TagResponse>> getTagsForPost(@PathVariable("id") Long postId,
+                                                                  @PageableDefault(size = 5) Pageable pageable) {
         Page<Tag> tagPage = tagService.getTagsForPostAsPage(postId, pageable);
 
         if (tagPage.isEmpty()) {
@@ -48,21 +49,21 @@ public class TagController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<TagModel> get(@PathVariable("id") Long tagId) {
-        Tag tag = tagService.get(tagId);
+    public ResponseEntity<TagResponse> get(@PathVariable("id") Long tagId) {
+        Tag tag = tagService.getTagById(tagId);
 
         return ResponseEntity.ok(tagModelAssembler.toModel(tag));
     }
 
     @PostMapping
-    public ResponseEntity<TagModel> save(@Valid @RequestBody TagRequest request) {
+    public ResponseEntity<TagResponse> save(@Valid @RequestBody TagRequest request) {
         Tag tag = tagService.save(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(tagModelAssembler.toModel(tag));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<TagModel> update(@PathVariable("id") Long tagId, @Valid @RequestBody TagRequest request) {
+    public ResponseEntity<TagResponse> update(@PathVariable("id") Long tagId, @Valid @RequestBody TagRequest request) {
         Tag tag = tagService.update(tagId, request);
 
         return ResponseEntity.ok(tagModelAssembler.toModel(tag));
@@ -74,6 +75,4 @@ public class TagController {
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-
 }

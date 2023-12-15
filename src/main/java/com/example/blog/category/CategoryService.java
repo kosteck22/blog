@@ -1,15 +1,13 @@
 package com.example.blog.category;
 
+import com.example.blog.entity.Category;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
-import com.example.blog.post.Post;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -17,7 +15,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public CategoryService(@Qualifier("category-jpa") CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
@@ -33,13 +31,20 @@ public class CategoryService {
 
     public Category save(CategoryRequest categoryRequest) {
         String name = categoryRequest.getName();
-
-        if (categoryRepository.existsByName(name)) {
-            throw new DuplicateResourceException("Category with name [%s] already exists".formatted(name));
-        }
+        validateName(name);
 
         Category category = Category.builder()
                 .name(name).build();
+
+        return categoryRepository.save(category);
+    }
+
+    public Category update(Long categoryId, CategoryRequest request) {
+        Category category = get(categoryId);
+        String requestName = request.getName();
+        validateName(categoryId, requestName);
+
+        category.setName(requestName);
 
         return categoryRepository.save(category);
     }
@@ -50,22 +55,21 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    public Category update(Long categoryId, CategoryRequest request) {
-        Category category = get(categoryId);
-        String requestName = request.getName();
-
+    private void validateName(Long categoryId, String requestName) {
         if (nameAlreadyTaken(categoryId, requestName)) {
             throw new RequestValidationException("Name [%s] already taken".formatted(requestName));
         }
-
-        category.setName(requestName);
-
-        return categoryRepository.save(category);
     }
 
     private boolean nameAlreadyTaken(Long categoryId, String name) {
-        Optional<Category> categoryWithGivenName = categoryRepository.findByName(name);
+        return categoryRepository.findByName(name)
+                .filter(value -> !value.getId().equals(categoryId))
+                .isPresent();
+    }
 
-        return categoryWithGivenName.filter(value -> !value.getId().equals(categoryId)).isPresent();
+    private void validateName(String name) {
+        if (categoryRepository.existsByName(name)) {
+            throw new DuplicateResourceException("Category with name [%s] already exists".formatted(name));
+        }
     }
 }

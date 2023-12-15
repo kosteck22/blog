@@ -1,22 +1,24 @@
 package com.example.blog.post;
 
-import com.example.blog.tag.Tag;
+import com.example.blog.entity.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.Rollback;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(value = false)
 class PostRepositoryJPATest {
     @Autowired
     private PostRepository underTest;
@@ -172,5 +174,110 @@ class PostRepositoryJPATest {
         //then
         assertThat(result).isInstanceOf(Post.class);
         assertThat(result.getTags()).isEmpty();
+    }
+
+    @Test
+    public void test_find_posts_by_users_id_should_find() {
+        //given
+        User user = User.builder()
+                .username("qwe")
+                .email("qwe@gmail.com")
+                .password("qkwjeasdn§Q1j!djw")
+                .firstName("qwe")
+                .lastName("asd")
+                .phone("123456789").build();
+        Post post1 = Post.builder()
+                .title("post 1 title")
+                .body("post 1 body")
+                .user(user).build();
+        Post post2 = Post.builder()
+                .title("post 2 title")
+                .body("post 2 body")
+                .user(user).build();
+        Post post3 = Post.builder()
+                .title("post 3 title")
+                .body("post 3 body").build();
+
+        entityManager.persist(user);
+        entityManager.persist(post1);
+        entityManager.persist(post2);
+        entityManager.persist(post3);
+
+        Pageable pageable = PageRequest.of(0, 5);
+
+        //when
+        Page<Post> postPage = underTest.findByUsersIn(List.of(user.getId()), pageable);
+
+        //then
+        assertThat(postPage.getTotalElements()).isEqualTo(2);
+        assertThat(postPage.getContent().contains(post1)).isTrue();
+        assertThat(postPage.getContent().contains(post2)).isTrue();
+    }
+
+    @Test
+    public void test_find_posts_by_category_id_should_find() {
+        //given
+        Category category = Category.builder()
+                .name("Category name").build();
+        Post post1 = Post.builder()
+                .title("post 1 title")
+                .body("post 1 body")
+                .category(category).build();
+        Post post2 = Post.builder()
+                .title("post 2 title")
+                .body("post 2 body")
+                .category(category).build();
+        Post post3 = Post.builder()
+                .title("post 3 title")
+                .body("post 3 body").build();
+
+        entityManager.persist(category);
+        entityManager.persist(post1);
+        entityManager.persist(post2);
+        entityManager.persist(post3);
+
+        Pageable pageable = PageRequest.of(0, 5);
+
+        //when
+        Page<Post> postPage = underTest.findByCategoriesIn(List.of(category.getId()), pageable);
+
+        //then
+        assertThat(postPage.getTotalElements()).isEqualTo(2);
+        assertThat(postPage.getContent().contains(post1)).isTrue();
+        assertThat(postPage.getContent().contains(post2)).isTrue();
+    }
+
+    @Test
+    public void test_find_posts_by_tags_id_should_find() {
+        //given
+        Tag tag = Tag.builder()
+                .name("Category name").build();
+        Set<Tag> tags = Collections.singleton(tag);
+        Post post1 = Post.builder()
+                .title("post 1 title")
+                .body("post 1 body")
+                .tags(tags).build();
+        Post post2 = Post.builder()
+                .title("post 2 title")
+                .body("post 2 body")
+                .tags(tags).build();
+        Post post3 = Post.builder()
+                .title("post 3 title")
+                .body("post 3 body").build();
+
+        entityManager.persist(tag);
+        entityManager.persist(post1);
+        entityManager.persist(post2);
+        entityManager.persist(post3);
+
+        Pageable pageable = PageRequest.of(0, 5);
+
+        //when
+        Page<Post> postPage = underTest.findByTagsIn(tags.stream().toList(), pageable);
+
+        //then
+        assertThat(postPage.getTotalElements()).isEqualTo(2);
+        assertThat(postPage.getContent().contains(post1)).isTrue();
+        assertThat(postPage.getContent().contains(post2)).isTrue();
     }
 }

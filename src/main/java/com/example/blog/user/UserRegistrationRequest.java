@@ -9,9 +9,11 @@ import lombok.*;
 @Builder
 public class UserRegistrationRequest {
 
+    @NotBlank
     @Email
     private String email;
 
+    @NotBlank
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
             message = "Minimum eight characters, " +
                     "at least one uppercase letter, " +
@@ -19,15 +21,19 @@ public class UserRegistrationRequest {
                     "one number and one special character")
     private String password;
 
+    @NotBlank
     @Size(min = 3, max = 64, message = "Size must be between 3 and 64")
     private String username;
 
+    @NotBlank
     @Size(min = 2, max = 64, message = "Size must be between 2 and 64")
     private String firstName;
 
+    @NotBlank
     @Size(min = 2, max = 64, message = "Size must be between 2 and 64")
     private String lastName;
 
+    @NotBlank
     @Size(min = 7, max = 20, message = "Size must be between 7 and 20")
     private String phone;
 }

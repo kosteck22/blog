@@ -1,20 +1,24 @@
 package com.example.blog.post;
 
-import com.example.blog.category.Category;
+import com.example.blog.auth.AuthorizationService;
+import com.example.blog.entity.Category;
 import com.example.blog.category.CategoryRepository;
+import com.example.blog.entity.Post;
 import com.example.blog.exception.DuplicateResourceException;
 import com.example.blog.exception.RequestValidationException;
 import com.example.blog.exception.ResourceNotFoundException;
-import com.example.blog.tag.Tag;
+import com.example.blog.security.UserPrincipal;
+import com.example.blog.entity.Tag;
 import com.example.blog.tag.TagRepository;
+import com.example.blog.entity.User;
+import com.example.blog.user.UserRetrievalService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -22,66 +26,24 @@ public class PostService {
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRetrievalService userRetrievalService;
+    private final AuthorizationService authorizationService;
 
     public PostService(PostRepository postRepository,
                        TagRepository tagRepository,
-                       CategoryRepository categoryRepository) {
+                       CategoryRepository categoryRepository,
+                       UserRetrievalService userRetrievalService,
+                       AuthorizationService authorizationService) {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
         this.categoryRepository = categoryRepository;
+        this.userRetrievalService = userRetrievalService;
+        this.authorizationService = authorizationService;
     }
 
     public Page<Post> getPostsAsPage(Pageable pageable) {
         return postRepository.findAll(pageable);
     }
-
-    public Page<Post> getPostsByTagId(Long tagId, Pageable pageable) {
-        Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] does not exists".formatted(tagId)));
-
-        return postRepository.findByTagsIn(List.of(tag), pageable);
-    }
-
-    public Page<Post> getPostsByCategoryId(Long categoryId, Pageable pageable) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists".formatted(categoryId)));
-
-        return postRepository.findByCategoriesIn(List.of(category.getId()), pageable);
-    }
-
-    public Post save(PostRequest request) {
-        String title = request.getTitle();
-        if (postRepository.existsByTitle(title)) {
-            throw new DuplicateResourceException("Post with title [%s] already exists".formatted(title));
-        }
-
-        Long categoryId = request.getCategoryId();
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists"
-                        .formatted(categoryId)));
-
-        Set<Tag> tags = new HashSet<>();
-
-        for (String tagName : request.getTags()) {
-            Optional<Tag> tagOptional = tagRepository.findByName(tagName);
-
-            if (tagOptional.isPresent()) {
-                tags.add(tagOptional.get());
-            } else {
-                Tag savedTag = tagRepository.save(new Tag(tagName));
-                tags.add(savedTag);
-            }
-        }
-
-        Post post = Post.builder()
-                .title(title)
-                .category(category)
-                .tags(tags)
-                .body(request.getBody()).build();
-
-        return postRepository.save(post);
-    }
-
 
     public Post getPostById(Long id) {
         return postRepository.findById(id)
@@ -89,37 +51,137 @@ public class PostService {
                         .formatted(id)));
     }
 
-    public void delete(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Post with id [%d] does not exist"
-                    .formatted(id));
-        }
-
-        postRepository.deleteById(id);
+    public Page<Post> getPostsByTagId(Long tagId, Pageable pageable) {
+        Tag tag = getTagById(tagId);
+        return postRepository.findByTagsIn(Collections.singletonList(tag), pageable);
     }
 
-    public Post update(Long id, PostRequest request) {
-        Post post = getPostById(id);
-        Long categoryId = request.getCategoryId();
+    public Page<Post> getPostsByCategoryId(Long categoryId, Pageable pageable) {
+        Category category = getCategoryById(categoryId);
+        return postRepository.findByCategoriesIn(Collections.singletonList(category.getId()), pageable);
+    }
 
-        if (titleAlreadyTaken(post.getId(), request.getTitle())) {
-            throw new RequestValidationException("Title [%s] already taken".formatted(request.getTitle()));
-        }
+    public Page<Post> getPostsByUserId(Long userId, Pageable pageable) {
+        User user = getUserById(userId);
+        return postRepository.findByUsersIn(Collections.singletonList(user.getId()), pageable);
+    }
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists"
-                        .formatted(categoryId)));
+    @Transactional
+    public Post save(PostRequest request, UserPrincipal currentUser) {
+        // Checking if title is unique
+        validatePostRequest(request);
 
-        post.setTitle(request.getTitle());
-        post.setCategory(category);
-        post.setBody(request.getBody());
+        User user = getUser(currentUser);
+        Category category = getCategoryById(request.getCategoryId());
+        Set<Tag> tags = getOrCreateTags(request.getTags());
+        Post post = buildPost(request, category, tags, user);
 
         return postRepository.save(post);
     }
 
-    private boolean titleAlreadyTaken(Long postId, String title) {
-        Optional<Post> postWithRequestTitle = postRepository.findByTitle(title);
+    @Transactional
+    public Post update(Long id, PostRequest request, UserPrincipal currentUser) {
+        Post post = getPostById(id);
+        Category category = getCategoryById(request.getCategoryId());
 
-        return postWithRequestTitle.filter(value -> !value.getId().equals(postId)).isPresent();
+        // Checking uniqueness of title
+        validateTitle(id, request.getTitle());
+
+        // Checking if logged user can update this post
+        hasAuthorizationForUpdateOrDeletePost(post, currentUser);
+
+        // Remove the post from existing tags
+        for (Tag tag : post.getTags()) {
+            tag.getPosts().remove(post);
+        }
+
+        Set<Tag> tags = getOrCreateTags(request.getTags());
+
+        post.setTitle(request.getTitle());
+        post.setBody(request.getBody());
+        post.setCategory(category);
+        post.setTags(tags);
+
+       postRepository.save(post);
+
+        // Cleanup orphaned tags
+        cleanupOrphanedTags();
+
+        return post;
+    }
+
+    @Transactional
+    public void delete(Long id, UserPrincipal currentUser) {
+        Post post = getPostById(id);
+        hasAuthorizationForUpdateOrDeletePost(post, currentUser);
+
+        postRepository.delete(post);
+
+        // Cleanup orphaned tags
+        cleanupOrphanedTags();
+    }
+
+    private void cleanupOrphanedTags() {
+        List<Tag> orphanedTags = tagRepository.findOrphanedTags();
+        for (Tag orphanedTag : orphanedTags) {
+            tagRepository.delete(orphanedTag);
+        }
+    }
+
+    private void validateTitle(Long id, String title) {
+        if (titleAlreadyTaken(id, title)) {
+            throw new RequestValidationException("Title [%s] already taken".formatted(title));
+        }
+    }
+
+    private void hasAuthorizationForUpdateOrDeletePost(Post post, UserPrincipal currentUser) {
+        authorizationService.hasAuthorizationForUpdateOrDeleteEntity(post, currentUser);
+    }
+
+    private static Post buildPost(PostRequest request, Category category, Set<Tag> tags, User user) {
+        return Post.builder()
+                .title(request.getTitle())
+                .category(category)
+                .user(user)
+                .tags(tags)
+                .body(request.getBody()).build();
+    }
+
+    private boolean titleAlreadyTaken(Long postId, String title) {
+        return postRepository.findByTitle(title)
+                .filter(existingPost -> !existingPost.getId().equals(postId))
+                .isPresent();
+    }
+
+    private User getUser(UserPrincipal currentUser) {
+        return userRetrievalService.getUserByEmail(currentUser.getEmail());
+    }
+
+    private User getUserById(Long userId) {
+        return userRetrievalService.getUserById(userId);
+    }
+
+    private Tag getTagById(Long tagId) {
+        return tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag with id [%d] does not exists".formatted(tagId)));
+    }
+
+    private Category getCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id [%d] does not exists".formatted(categoryId)));
+    }
+
+    private Set<Tag> getOrCreateTags(List<String> tagNames) {
+        return tagNames.stream()
+                .map(tagName -> tagRepository.findByName(tagName)
+                        .orElseGet(() -> tagRepository.save(new Tag(tagName))))
+                .collect(Collectors.toSet());
+    }
+
+    private void validatePostRequest(PostRequest request) {
+        String title = request.getTitle();
+        if (postRepository.existsByTitle(title)) {
+            throw new DuplicateResourceException("Post with title [%s] already exists".formatted(title));
+        }
     }
 }

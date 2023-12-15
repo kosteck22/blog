@@ -24,7 +24,7 @@ public class DateAudit implements Serializable {
     @CreatedDate
     private long createdDate;
 
-    @Column(name = "modified_date")
+    @Column(name = "modified_date", insertable = false)
     @LastModifiedDate
     private long modifiedDate;
 }

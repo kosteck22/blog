@@ -1,10 +1,15 @@
 package com.example.blog.comment;
 
+import com.example.blog.entity.Comment;
+import com.example.blog.entity.User;
 import com.example.blog.exception.ResourceNotFoundException;
-import com.example.blog.post.Post;
+import com.example.blog.entity.Post;
+import com.example.blog.security.JwtAuthenticationTokenFilter;
+import com.example.blog.security.UserPrincipal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -31,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(CommentController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import({ CommentModelAssembler.class, CommentMapper.class })
 class CommentControllerTest {
 
@@ -45,6 +51,9 @@ class CommentControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private JwtAuthenticationTokenFilter filter;
+
     @Test
     public void test_get_comments_for_post_should_return_200() throws Exception {
         //given
@@ -53,39 +62,47 @@ class CommentControllerTest {
                 .id(postId)
                 .title("Title of post")
                 .body("Body of post").build();
+        User user = User.builder()
+                .id(1L).build();
         Comment firstComment = Comment.builder()
                 .id(1L)
                 .body("body of the comment 1")
+                .user(user)
                 .post(post).build();
         Comment secondComment = Comment.builder()
                 .id(2L)
                 .body("body of the comment 2")
+                .user(user)
                 .post(post).build();
         Comment thirdComment = Comment.builder()
                 .id(3L)
                 .body("body of the comment 3")
+                .user(user)
                 .post(post).build();
         Comment fourthComment = Comment.builder()
                 .id(4L)
                 .body("body of the comment 4")
+                .user(user)
                 .post(post).build();
         List<Comment> comments = List.of(firstComment, secondComment, thirdComment, fourthComment);
         Pageable pageable = PageRequest.of(0, 2);
         Page<Comment> commentPage = new PageImpl<>(comments, pageable, comments.size());
 
-        doReturn(commentPage).when(commentService).fetchCommentDataForPostAsPage(any(Long.class), any(Pageable.class));
+        doReturn(commentPage).when(commentService).getCommentsAsPage(any(Long.class), any(Pageable.class));
 
         //when
         //then
         mockMvc.perform(get(END_POINT_PATH.formatted(postId)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaTypes.HAL_JSON))
-                .andExpect(jsonPath("$._embedded.commentModelList[0].id", is(1)))
-                .andExpect(jsonPath("$._embedded.commentModelList[0].body", is("body of the comment 1")))
-                .andExpect(jsonPath("$._embedded.commentModelList[0]._links.post.href", is("http://localhost/api/v1/posts/1")))
-                .andExpect(jsonPath("$._embedded.commentModelList[1].id", is(2)))
-                .andExpect(jsonPath("$._embedded.commentModelList[1].body", is("body of the comment 2")))
-                .andExpect(jsonPath("$._embedded.commentModelList[1]._links.post.href", is("http://localhost/api/v1/posts/1")))
+                .andExpect(jsonPath("$._embedded.comments[0].id", is(1)))
+                .andExpect(jsonPath("$._embedded.comments[0].body", is("body of the comment 1")))
+                .andExpect(jsonPath("$._embedded.comments[0]._links.post.href", is("http://localhost/api/v1/posts/1")))
+                .andExpect(jsonPath("$._embedded.comments[0]._links.user.href", is("http://localhost/api/v1/users/1")))
+                .andExpect(jsonPath("$._embedded.comments[1].id", is(2)))
+                .andExpect(jsonPath("$._embedded.comments[1].body", is("body of the comment 2")))
+                .andExpect(jsonPath("$._embedded.comments[1]._links.post.href", is("http://localhost/api/v1/posts/1")))
+                .andExpect(jsonPath("$._embedded.comments[1]._links.user.href", is("http://localhost/api/v1/users/1")))
                 .andExpect(jsonPath("$._links.self.href", is("http://localhost/api/v1/posts/1/comments?page=0&size=2")))
                 .andExpect(jsonPath("$._links.first.href", is("http://localhost/api/v1/posts/1/comments?page=0&size=2")))
                 .andExpect(jsonPath("$._links.next.href", is("http://localhost/api/v1/posts/1/comments?page=1&size=2")))
@@ -98,14 +115,14 @@ class CommentControllerTest {
     }
 
     @Test
-    public void test_fetch_comments_data_should_return_204_empty_collection() throws Exception {
+    public void test_get_comments_for_post_should_return_204_empty_collection() throws Exception {
         //given
         Long postId = 1L;
         List<Comment> comments = List.of();
         Pageable pageable = PageRequest.of(0, 2);
         Page<Comment> commentPage = new PageImpl<>(comments, pageable, comments.size());
 
-        when(commentService.fetchCommentDataForPostAsPage(any(), any())).thenReturn(commentPage);
+        when(commentService.getCommentsAsPage(any(), any())).thenReturn(commentPage);
 
         //when
         //then
@@ -120,11 +137,11 @@ class CommentControllerTest {
     }
 
     @Test
-    public void test_fetch_comments_data_for_post_that_does_not_exist_should_return_404_not_found() throws Exception {
+    public void test_get_comments_for_post_that_does_not_exist_should_return_404_not_found() throws Exception {
         //given
         Long postId = 1L;
 
-        when(commentService.fetchCommentDataForPostAsPage(any(), any())).thenThrow(ResourceNotFoundException.class);
+        when(commentService.getCommentsAsPage(any(), any())).thenThrow(ResourceNotFoundException.class);
 
         //when
         //then
@@ -161,7 +178,7 @@ class CommentControllerTest {
                 .body("This is body of the new comment").build();
         String requestBody = objectMapper.writeValueAsString(commentRequest);
 
-        when(commentService.save(postId, commentRequest)).thenThrow(ResourceNotFoundException.class);
+        when(commentService.save(postId, commentRequest, null)).thenThrow(ResourceNotFoundException.class);
 
         //when
         //then
@@ -177,8 +194,12 @@ class CommentControllerTest {
         String commentBody = "This is body of the new comment";
         LocalDateTime createdDate = LocalDateTime.of(2023, 10, 12, 12, 12, 12);
         Timestamp timestamp = Timestamp.valueOf(createdDate);
+
         CommentRequest commentRequest = CommentRequest.builder()
                 .body(commentBody).build();
+
+        User user = User.builder()
+                .id(2L).build();
 
         Post post = Post.builder()
                 .id(postId)
@@ -188,12 +209,13 @@ class CommentControllerTest {
         Comment comment = Comment.builder()
                 .id(10L)
                 .body(commentBody)
+                .user(user)
                 .post(post).build();
         comment.setCreatedDate(timestamp.getTime());
 
         String requestBody = objectMapper.writeValueAsString(commentRequest);
 
-        when(commentService.save(postId, commentRequest)).thenReturn(comment);
+        when(commentService.save(postId, commentRequest, null)).thenReturn(comment);
 
         //when
         //then
@@ -204,6 +226,7 @@ class CommentControllerTest {
                 .andExpect(jsonPath("$.body", is(commentBody)))
                 .andExpect(jsonPath("$.createdDate", is("2023-10-12T12:12:12")))
                 .andExpect(jsonPath("$._links.post.href", is("http://localhost/api/v1/posts/1")))
+                .andExpect(jsonPath("$._links.user.href", is("http://localhost/api/v1/users/2")))
                 .andDo(print());
     }
 
@@ -219,7 +242,7 @@ class CommentControllerTest {
                 .andExpect(status().isNoContent())
                 .andDo(print());
 
-        verify(commentService).delete(postId, commentId);
+        verify(commentService).delete(postId, commentId, null);
     }
 
     @Test
@@ -229,6 +252,9 @@ class CommentControllerTest {
         Long commentId = 1L;
         String commentBody = "This is comment body";
 
+        User user = User.builder()
+                .id(2L).build();
+
         Post post = Post.builder()
                 .id(postId)
                 .title("title of the post")
@@ -237,6 +263,7 @@ class CommentControllerTest {
         Comment comment = Comment.builder()
                 .id(commentId)
                 .body(commentBody)
+                .user(user)
                 .post(post).build();
 
         when(commentService.getById(postId, commentId)).thenReturn(comment);
@@ -249,6 +276,7 @@ class CommentControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.body", is(commentBody)))
                 .andExpect(jsonPath("$._links.post.href", is("http://localhost/api/v1/posts/" + postId)))
+                .andExpect(jsonPath("$._links.user.href", is("http://localhost/api/v1/users/2")))
                 .andDo(print());
     }
 
@@ -286,7 +314,7 @@ class CommentControllerTest {
 
         String requestBody = objectMapper.writeValueAsString(commentRequest);
 
-        when(commentService.update(postId, commentId, commentRequest)).thenThrow(ResourceNotFoundException.class);
+        when(commentService.update(postId, commentId, commentRequest, null)).thenThrow(ResourceNotFoundException.class);
 
         //when
         //then
@@ -311,15 +339,19 @@ class CommentControllerTest {
                 .title("Post title")
                 .body("post body").build();
 
+        User user = User.builder()
+                .id(1L).build();
+
         Comment comment = Comment.builder()
                 .id(commentId)
                 .body(commentBody)
+                .user(user)
                 .post(post).build();
         comment.setCreatedDate(timestamp.getTime());
 
         String requestBody = objectMapper.writeValueAsString(commentRequest);
 
-        when(commentService.update(postId, commentId, commentRequest)).thenReturn(comment);
+        when(commentService.update(postId, commentId, commentRequest, null)).thenReturn(comment);
 
         //when
         //then
@@ -330,6 +362,7 @@ class CommentControllerTest {
                 .andExpect(jsonPath("$.body", is(commentBody)))
                 .andExpect(jsonPath("$.createdDate", is("2023-10-12T12:12:12")))
                 .andExpect(jsonPath("$._links.post.href", is("http://localhost/api/v1/posts/1")))
+                .andExpect(jsonPath("$._links.user.href", is("http://localhost/api/v1/users/1")))
                 .andDo(print());
     }
 }
