@@ -28,7 +28,7 @@ class CategoryRepositoryJpaTest {
     private PostRepository postRepository;
 
     @Test
-    public void saveCategory() {
+    public void save_category() {
         //given
         String categoryName = "Frontend Development";
         Category category = Category.builder()
@@ -46,7 +46,7 @@ class CategoryRepositoryJpaTest {
     }
 
     @Test
-    void findCategoryById() {
+    void find_category_by_id() {
         //given
         Category category = Category.builder()
                 .name("Test Category")
@@ -63,7 +63,7 @@ class CategoryRepositoryJpaTest {
     }
 
     @Test
-    void updateCategory() {
+    void update_category() {
         //when
         Category category = Category.builder()
                 .name("Test Category")
@@ -81,7 +81,7 @@ class CategoryRepositoryJpaTest {
     }
 
     @Test
-    void deleteCategory() {
+    void delete_category() {
         //given
         Category category = Category.builder()
                 .name("Test Category")
@@ -157,7 +157,8 @@ class CategoryRepositoryJpaTest {
         category1.addPost(post1);
         category2.addPost(post2);
 
-        categoryRepository.saveAll(Arrays.asList(category1, category2));
+        categoryRepository.save(category1);
+        categoryRepository.save(category2);
         postRepository.saveAll(Arrays.asList(post1, post2));
 
         // When
@@ -175,7 +176,7 @@ class CategoryRepositoryJpaTest {
     }
 
     @Test
-    void findAllCategories() {
+    void find_all_categories() {
         //given
         Category category1 = Category.builder()
                 .name("Category 1")

@@ -9,10 +9,11 @@ import lombok.*;
 @Builder
 public class UserRegistrationRequest {
 
-    @Email
     @NotBlank
+    @Email
     private String email;
 
+    @NotBlank
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
             message = "Minimum eight characters, " +
                     "at least one uppercase letter, " +

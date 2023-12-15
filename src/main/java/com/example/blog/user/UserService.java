@@ -83,7 +83,7 @@ public class UserService {
 
     private Role getUserRole() {
         return roleRepository.findByName(AppRoles.ROLE_USER)
-                .orElseThrow(() -> new ResourceNotFoundException("Admin role not found in db"));
+                .orElseThrow(() -> new ResourceNotFoundException("User role not found in db"));
     }
 
     private Role getAdminRole() {

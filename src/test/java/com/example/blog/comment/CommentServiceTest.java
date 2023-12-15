@@ -75,6 +75,7 @@ class CommentServiceTest {
 
         verify(commentRepository, never()).findAllInPost(postId, pageable);
     }
+
     @Test
     public void test_get_comment_by_id_should_return_comment() {
         //given
@@ -108,15 +109,6 @@ class CommentServiceTest {
         //given
         Long postId = 1L;
         Long commentId = 2L;
-        Post post = Post.builder()
-                .id(postId)
-                .title("title")
-                .body("body of post").build();
-        String bodyOfComment = "body of comment";
-        Comment comment = Comment.builder()
-                .id(commentId)
-                .body(bodyOfComment)
-                .post(post).build();
 
         when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
@@ -206,12 +198,13 @@ class CommentServiceTest {
         Long postId = 1L;
         CommentRequest request = CommentRequest.builder()
                 .body("body of the new comment").build();
+        UserPrincipal mockedUser = mock(UserPrincipal.class);
 
         when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
         //when
         //then
-        assertThatThrownBy(() -> underTest.save(postId, request, null))
+        assertThatThrownBy(() -> underTest.save(postId, request, mockedUser))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Post with id [%d] does not exist".formatted(postId));
         verify(commentRepository, never()).save(any());
@@ -427,6 +420,4 @@ class CommentServiceTest {
         //then
         verify(commentRepository, never()).delete(any());
     }
-
-
 }

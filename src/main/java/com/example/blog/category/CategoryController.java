@@ -1,6 +1,7 @@
 package com.example.blog.category;
 
 import com.example.blog.entity.Category;
+import com.example.blog.entity.Post;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,10 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -28,7 +33,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<CategoryResponse>> getCategoriesAsPage(@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<PagedModel<CategoryResponse>> getCategoriesAsPage(@PageableDefault(size = 5) Pageable pageable) {
         Page<Category> categoryPage = categoryService.getCategoriesAsPage(pageable);
 
         if (categoryPage.isEmpty()) {

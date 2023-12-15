@@ -11,13 +11,26 @@ import org.springframework.stereotype.Service;
 public class AuthorizationService {
 
     public void hasAuthorizationForUpdateOrDeleteEntity(UserOwnedEntity entity, UserPrincipal currentUser) {
-        if (!currentUser.getId().equals(getUserId(entity)) ||
-                !currentUser.getAuthorities().contains(new SimpleGrantedAuthority(AppRoles.ROLE_ADMIN.toString()))) {
-            throw new CustomAuthorizationException("You don't have permission to make this request");
+        if (isUserAuthorized(entity, currentUser)) {
+            return;
         }
+        throw new CustomAuthorizationException("You don't have permission to make this request");
     }
 
-    private Long getUserId(UserOwnedEntity entity) {
+    private boolean isUserAuthorized(UserOwnedEntity entity, UserPrincipal currentUser) {
+        return isEntityBelongToCurrentUser(entity, currentUser) ||
+                isUserAdmin(currentUser);
+    }
+
+    private boolean isEntityBelongToCurrentUser(UserOwnedEntity entity, UserPrincipal currentUser) {
+        return currentUser.getId().equals(getUserIdFromEntity(entity));
+    }
+
+    private boolean isUserAdmin(UserPrincipal currentUser) {
+        return currentUser.getAuthorities().contains(new SimpleGrantedAuthority(AppRoles.ROLE_ADMIN.toString()));
+    }
+
+    private Long getUserIdFromEntity(UserOwnedEntity entity) {
         return entity.getUser().getId();
     }
 }

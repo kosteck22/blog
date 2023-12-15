@@ -12,10 +12,10 @@ import com.example.blog.entity.Tag;
 import com.example.blog.tag.TagRepository;
 import com.example.blog.entity.User;
 import com.example.blog.user.UserRetrievalService;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -110,6 +110,7 @@ public class PostService {
         return post;
     }
 
+    @Transactional
     public void delete(Long id, UserPrincipal currentUser) {
         Post post = getPostById(id);
         hasAuthorizationForUpdateOrDeletePost(post, currentUser);

@@ -8,6 +8,7 @@ import com.example.blog.post.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -53,10 +54,18 @@ public class TagService {
         return tagRepository.save(tag);
     }
 
+    @Transactional
     public void delete(Long tagId) {
         Tag tag = getTagById(tagId);
+        removeAssociationWithPosts(tag);
 
         tagRepository.delete(tag);
+    }
+
+    private static void removeAssociationWithPosts(Tag tag) {
+        for (Post post : tag.getPosts()) {
+            post.removeTag(tag);
+        }
     }
 
     private Post getPostById(Long postId) {

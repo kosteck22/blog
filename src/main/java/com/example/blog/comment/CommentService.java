@@ -9,10 +9,10 @@ import com.example.blog.post.PostRepository;
 import com.example.blog.security.UserPrincipal;
 import com.example.blog.entity.User;
 import com.example.blog.user.UserRetrievalService;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CommentService {

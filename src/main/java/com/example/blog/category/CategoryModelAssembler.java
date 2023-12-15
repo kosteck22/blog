@@ -2,6 +2,7 @@ package com.example.blog.category;
 
 import com.example.blog.entity.Category;
 import com.example.blog.post.PostController;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
