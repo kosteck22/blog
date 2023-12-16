@@ -28,8 +28,8 @@ This repository contains the source code for a Blog application built with Sprin
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/your-blog-repo.git
-   cd your-blog-repo
+   git clone https://github.com/kosteck22/blog.git
+   cd blog
 
 2. Configure MySQL:
 Create a MySQL database and update the application.properties file with the database connection details.
