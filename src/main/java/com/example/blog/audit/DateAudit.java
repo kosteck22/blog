@@ -22,9 +22,9 @@ public class DateAudit implements Serializable {
 
     @Column(name = "created_date", nullable = false, updatable = false)
     @CreatedDate
-    private long createdDate;
+    private Long createdDate;
 
     @Column(name = "modified_date", insertable = false)
     @LastModifiedDate
-    private long modifiedDate;
+    private Long modifiedDate;
 }
