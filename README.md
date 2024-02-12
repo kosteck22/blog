@@ -6,14 +6,12 @@ This repository contains the source code for a Blog application built with Sprin
 
 ## Technologies Used
 
-- **Spring Boot**: A powerful and convention-over-configuration-based framework for Java development.
-- **Spring HATEOAS**: HATEOAS (Hypermedia as the Engine of Application State) support in Spring Boot for creating RESTful services that follow the principles of REST, including hypermedia-driven navigation.
-- **Spring Security**: A powerful and customizable authentication and access control framework for Java applications.
-
-- **JUnit 5**: JUnit 5 is used for writing and running tests.
-
-- **MySQL**: A popular relational database for storing and managing data.
-- **JWT Authentication**: JSON Web Token for secure authentication and authorization.
+- **Spring Boot**
+- **Spring HATEOAS**
+- **Spring Security**: Using JWT token Authentication
+- **Spring Data JPA**
+- **MySQL**
+- **JUnit 5**
 
 ## Getting Started
 
@@ -113,7 +111,7 @@ The app will start running at <http://localhost:8103>
 ```json
 {
 	"email": "adam18@gmail.com",
-	"password": "Password1!",
+	"password": "password",
 	"username": "adam",
 	"firstName": "adam",
 	"lastName": "smith",
@@ -205,7 +203,7 @@ The app will start running at <http://localhost:8103>
 ```json
 {
 	"email": "adam18@gmail.com",
-	"password": "Password1!",
+	"password": "password",
 	"username": "adam",
 	"firstName": "adam",
 	"lastName": "smith",
@@ -216,28 +214,12 @@ The app will start running at <http://localhost:8103>
 ##### <a id="userupdate">Update User -> /api/users/{username}</a>
 ```json
 {
-	"firstName": "Ervin",
-	"lastName": "Howell",
-	"username": "ervin",
-	"password": "updatedpassword",
-	"email": "ervin.howell@gmail.com",
-	"address": {
-		"street": "Victor Plains",
-		"suite": "Suite 879",
-		"city": "Wisokyburgh",
-		"zipcode": "90566-7771",
-		"geo": {
-			"lat": "-43.9509",
-			"lng": "-34.4618"
-		}
-	},
-	"phone": "010-692-6593 x09125",
-	"website": "http://erwinhowell.com",
-	"company": {
-		"name": "Deckow-Crist",
-		"catchPhrase": "Proactive didactic contingency",
-		"bs": "synergize scalable supply-chains"
-	}
+	"email": "adam18@gmail.com",
+	"password": "password",
+	"username": "adam",
+	"firstName": "adam",
+	"lastName": "smith",
+	"phone": "123456789"
 }
 ```
 
