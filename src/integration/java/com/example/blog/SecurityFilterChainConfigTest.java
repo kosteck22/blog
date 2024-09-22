@@ -1,6 +1,5 @@
 package com.example.blog;
 
-import com.example.blog.security.JwtAuthenticationTokenFilter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,6 @@ public class SecurityFilterChainConfigTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private JwtAuthenticationTokenFilter jwtFilter;
 
     @ParameterizedTest
     @ValueSource(strings = {

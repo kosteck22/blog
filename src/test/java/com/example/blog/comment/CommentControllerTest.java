@@ -69,21 +69,25 @@ class CommentControllerTest {
                 .body("body of the comment 1")
                 .user(user)
                 .post(post).build();
+        firstComment.setCreatedDate(1L);
         Comment secondComment = Comment.builder()
                 .id(2L)
                 .body("body of the comment 2")
                 .user(user)
                 .post(post).build();
+        secondComment.setCreatedDate(1L);
         Comment thirdComment = Comment.builder()
                 .id(3L)
                 .body("body of the comment 3")
                 .user(user)
                 .post(post).build();
+        thirdComment.setCreatedDate(1L);
         Comment fourthComment = Comment.builder()
                 .id(4L)
                 .body("body of the comment 4")
                 .user(user)
                 .post(post).build();
+        fourthComment.setCreatedDate(1L);
         List<Comment> comments = List.of(firstComment, secondComment, thirdComment, fourthComment);
         Pageable pageable = PageRequest.of(0, 2);
         Page<Comment> commentPage = new PageImpl<>(comments, pageable, comments.size());
@@ -265,6 +269,7 @@ class CommentControllerTest {
                 .body(commentBody)
                 .user(user)
                 .post(post).build();
+        comment.setCreatedDate(1L);
 
         when(commentService.getById(postId, commentId)).thenReturn(comment);
 

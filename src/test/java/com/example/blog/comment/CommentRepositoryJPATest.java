@@ -1,5 +1,6 @@
 package com.example.blog.comment;
 
+import com.example.blog.AuditConfigTest;
 import com.example.blog.entity.Comment;
 import com.example.blog.entity.Post;
 import com.example.blog.entity.User;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -18,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(AuditConfigTest.class)
 class CommentRepositoryJPATest {
     @Autowired
     private CommentRepository underTest;
@@ -30,8 +33,9 @@ class CommentRepositoryJPATest {
         //given
         String body = "This is comment body 3";
 
-        Post post = Post.builder()
-                .id(1L).build();
+        Post post = entityManager.persist(Post.builder()
+                .body("body")
+                .title("title").build());
 
         Comment comment = Comment.builder()
                 .body(body).build();
@@ -44,7 +48,7 @@ class CommentRepositoryJPATest {
         assertThat(result).isInstanceOf(Comment.class);
         assertThat(result.getId()).isNotNull().isGreaterThan(0);
         assertThat(result.getBody()).isEqualTo(body);
-        assertThat(result.getPost().getId()).isEqualTo(1L);
+        assertThat(result.getPost().getId()).isGreaterThan(0L);
     }
 
     @Test

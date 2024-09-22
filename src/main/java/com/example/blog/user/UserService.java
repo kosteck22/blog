@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 
@@ -130,5 +131,13 @@ public class UserService {
                 .findFirst()
                 .orElseThrow(() -> new DuplicateResourceException("User with id [%d] does not have admin role"
                         .formatted(userToDegraded.getId())));
+    }
+
+    public void uploadUserProfileImage(Long userId, MultipartFile file) {
+
+    }
+
+    public byte[] getUserProfileImage(Integer userId) {
+        return new byte[0];
     }
 }

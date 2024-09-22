@@ -54,6 +54,7 @@ public class CommentController {
                                                 @Valid @RequestBody CommentRequest request,
                                                 @CurrentUser UserPrincipal currentUser) {
         Comment comment = commentService.save(postId, request, currentUser);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(commentModelAssembler.toModel(comment));
     }
 

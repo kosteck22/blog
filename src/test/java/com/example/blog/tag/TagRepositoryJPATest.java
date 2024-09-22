@@ -1,5 +1,6 @@
 package com.example.blog.tag;
 
+import com.example.blog.AuditConfigTest;
 import com.example.blog.entity.Post;
 import com.example.blog.entity.Tag;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -17,6 +19,7 @@ import static org.springframework.test.web.servlet.result.StatusResultMatchersEx
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(AuditConfigTest.class)
 class TagRepositoryJPATest {
 
     @Autowired

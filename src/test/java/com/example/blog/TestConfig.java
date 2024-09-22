@@ -11,14 +11,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @TestConfiguration
-@EnableWebSecurity
 public class TestConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
-
-        return http.authorizeHttpRequests(auth -> {
-            auth.anyRequest().permitAll();
-        }).build();
+        return http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll()).build();
     }
 }

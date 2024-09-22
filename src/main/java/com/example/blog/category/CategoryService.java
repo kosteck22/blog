@@ -32,7 +32,6 @@ public class CategoryService {
     public Category save(CategoryRequest categoryRequest) {
         String name = categoryRequest.getName();
         validateName(name);
-
         Category category = Category.builder()
                 .name(name).build();
 
@@ -41,9 +40,8 @@ public class CategoryService {
 
     public Category update(Long categoryId, CategoryRequest request) {
         Category category = get(categoryId);
-        String requestName = request.getName();
+        String requestName = request.getName();;
         validateName(categoryId, requestName);
-
         category.setName(requestName);
 
         return categoryRepository.save(category);

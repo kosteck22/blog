@@ -19,8 +19,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -211,4 +213,24 @@ public class UserController {
 
         return ResponseEntity.ok(userModelAssembler.toModel(user));
     }
+
+    @PostMapping(
+            value = "me/profile-image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<String> uploadUserProfileImage(@CurrentUser UserPrincipal currentUser,
+                                                         @RequestParam("file")MultipartFile file) {
+        userService.uploadUserProfileImage(currentUser.getId(), file);
+
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping(
+            value = "{id}/profile-image",
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
+    public byte[] getUserProfileImage(@PathVariable("id") Integer userId) {
+        return userService.getUserProfileImage(userId);
+    }
+
 }

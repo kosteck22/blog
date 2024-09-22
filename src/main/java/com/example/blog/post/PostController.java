@@ -74,7 +74,6 @@ public class PostController {
     public ResponseEntity<PagedModel<PostResponse>> getPostsByUser(@PathVariable("id") Long userId,
                                                                    @PageableDefault(size = 5) Pageable pageable) {
         Page<Post> postPage = postService.getPostsByUserId(userId, pageable);
-
         if (postPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(PagedModel.empty());
         }

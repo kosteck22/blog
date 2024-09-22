@@ -40,7 +40,8 @@ public class SecurityFilterChainConfig {
                                 "/api/v1/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/posts/*/comments",
-                                "/api/v1/posts").hasAnyRole("USER")
+                                "/api/v1/posts",
+                                "me/profile-image").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/v1/categories/*",
                                 "/api/v1/tags/*").hasRole("ADMIN")
